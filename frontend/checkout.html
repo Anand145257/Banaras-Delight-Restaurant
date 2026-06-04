@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Secure Checkout at Banaras Delight.">
+  <title>Checkout | Banaras Delight</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- CSS Frameworks -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gold: { light: '#ffd275', DEFAULT: '#f15a24', dark: '#c83b0e' },
+            dark: { bg: '#0d0603', surface: '#160a05', lighter: '#241008', card: '#1b0c06', border: '#33180e' }
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'] }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <!-- Razorpay SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <style>
+    * { scrollbar-width: thin; scrollbar-color: #f15a24 #0d0603; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0d0603; }
+    ::-webkit-scrollbar-thumb { background: #f15a24; border-radius: 3px; }
+    ::selection { background: #f15a24; color: white; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0d0603;
+      background-image: radial-gradient(ellipse at 50% 0%, rgba(241,90,36,0.08) 0%, transparent 60%);
+      background-attachment: fixed;
+    }
+    
+    .glass-card {
+      background: rgba(22, 10, 5, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(241, 90, 36, 0.08);
+      border-radius: 1rem;
+    }
+    
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #ffd275, #f15a24, #c83b0e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+ 
+    .btn-primary {
+      background: linear-gradient(135deg, #f15a24, #c83b0e);
+      color: white;
+      font-weight: 600;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 10px 15px -3px rgba(241, 90, 36, 0.2);
+      transform: translateY(-1px);
+    }
+    
+    .btn-outline {
+      border: 1px solid rgba(241, 90, 36, 0.3);
+      color: #f15a24;
+      font-weight: 500;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+    .btn-outline:hover {
+      background: rgba(241, 90, 36, 0.05);
+      border-color: #f15a24;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: white;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: #f15a24;
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 0 1px rgba(241, 90, 36, 0.3);
+    }
+
+    /* Selected Payment Card Highlights */
+    .pm-card-selected {
+      border-color: #e9b824 !important;
+      background: rgba(233, 184, 36, 0.05) !important;
+      box-shadow: 0 0 12px rgba(233, 184, 36, 0.1);
+    }
+  </style>
+</head>
+<body class="antialiased text-gray-200 min-h-screen flex flex-col invisible">
+
+  <!-- Navbar -->
+  <nav id="navbar" class="fixed w-full z-40 py-3.5 px-6 md:px-12 bg-dark-bg/85 backdrop-blur-md border-b border-white/5">
+    <div class="flex items-center justify-between max-w-7xl mx-auto">
+      <a href="index.html" class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center shadow-lg shadow-gold/20">
+          <span class="text-white font-serif font-bold text-base">B</span>
+        </div>
+        <span class="text-gold font-serif text-lg font-bold">Banaras Delight</span>
+      </a>
+      <div class="hidden lg:flex items-center space-x-8 text-gray-300 font-medium text-sm tracking-wide">
+        <a href="index.html" class="hover:text-gold transition-colors duration-300 relative group">Home<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+        <a href="menu.html" class="hover:text-gold transition-colors duration-300 relative group">Menu<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+        <a href="orders.html" class="hover:text-gold transition-colors duration-300 relative group">Track Orders<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+        <a href="contact.html" class="hover:text-gold transition-colors duration-300 relative group">Contact<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="cart.html" class="p-2 text-gray-300 hover:text-gold relative">
+          <i class="ph ph-shopping-cart text-xl"></i>
+          <span id="cart-count" class="absolute -top-0.5 -right-0.5 bg-gold text-white text-[9px] font-bold w-4.5 h-4.5 flex items-center justify-center rounded-full">0</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="flex-grow pt-24 pb-16 max-w-6xl w-full mx-auto px-6 md:px-12 flex flex-col gap-6">
+    
+    <!-- Title Section -->
+    <div id="checkout-title-area" class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-4">
+      <div>
+        <span class="text-gold text-xs font-semibold uppercase tracking-wider block">Checkout</span>
+        <h1 class="font-serif text-2xl md:text-3xl text-white font-bold mt-0.5">Secure <span class="gold-gradient-text">Checkout</span></h1>
+        <p class="text-gray-400 text-xs mt-1">Provide your delivery details and choose your preferred Indian payment gateway method.</p>
+      </div>
+      <a href="cart.html" class="text-gold text-xs font-medium hover:underline flex items-center gap-1.5">
+        <i class="ph ph-arrow-left"></i> Return to Cart
+      </a>
+    </div>
+
+    <!-- Main Checkout View -->
+    <div id="checkout-form-layout" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column: Customer details form & Payment methods -->
+      <div class="lg:col-span-2 flex flex-col gap-6">
+        
+        <!-- Customer Details Card -->
+        <div class="glass-card p-6 md:p-8 flex flex-col gap-5">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-3 flex items-center gap-2">
+            <i class="ph ph-user text-gold"></i> 1. Customer Delivery Details
+          </h2>
+          
+          <form id="checkout-form" class="grid grid-cols-1 md:grid-cols-2 gap-5" onsubmit="processCheckoutSubmit(event)">
+            
+            <div class="flex flex-col gap-2 md:col-span-2">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Full Name *</label>
+              <input type="text" id="cust-name" required class="input-field" placeholder="e.g. Aditi Rao">
+            </div>
+            
+            <div class="flex flex-col gap-2">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Phone Number *</label>
+              <input type="tel" id="cust-phone" required pattern="[0-9]{10}" class="input-field" placeholder="10-digit mobile number">
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Email Address *</label>
+              <input type="email" id="cust-email" required class="input-field" placeholder="e.g. aditi@gmail.com">
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Pincode (Postal Code) *</label>
+              <input type="text" id="cust-pin" required pattern="[0-9]{6}" class="input-field" placeholder="e.g. 560001">
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">City *</label>
+              <input type="text" id="cust-city" required class="input-field" placeholder="e.g. Bengaluru">
+            </div>
+
+            <div class="flex flex-col gap-2 md:col-span-2">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Delivery Address *</label>
+              <textarea id="cust-address" required rows="3" class="input-field" placeholder="House No, Building, Street, Area..."></textarea>
+            </div>
+
+            <div class="flex flex-col gap-2 md:col-span-2">
+              <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Order Notes (Optional)</label>
+              <textarea id="cust-notes" rows="2" class="input-field" placeholder="e.g. Ring the bell, deliver at the gate, make it extra spicy..."></textarea>
+            </div>
+          </form>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div class="glass-card p-6 md:p-8 flex flex-col gap-5">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-white border-b border-white/5 pb-3 flex items-center gap-2">
+            <i class="ph ph-credit-card text-gold"></i> 2. Select Payment Method
+          </h2>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Google Pay Card -->
+            <label onclick="selectPaymentMethod('Google Pay')" class="border border-white/10 rounded-xl p-4 flex items-center justify-between cursor-pointer hover:border-gold/50 bg-white/[0.01] transition-all relative pm-card-selected payment-method-label" id="label-gpay">
+              <div class="flex items-center gap-3">
+                <input type="radio" name="paymentRadio" id="radio-gpay" value="Google Pay" checked class="accent-gold w-4 h-4 mr-1">
+                <div class="flex flex-col">
+                  <span class="text-sm font-semibold text-white">Google Pay</span>
+                  <span class="text-[10px] text-gray-500">Pay instantly using GPay</span>
+                </div>
+              </div>
+              <div class="text-blue-400 bg-white/5 p-2 rounded-lg flex items-center justify-center">
+                <i class="ph-bold ph-google-logo text-xl"></i>
+              </div>
+            </label>
+            
+            <!-- Paytm Card -->
+            <label onclick="selectPaymentMethod('Paytm')" class="border border-white/10 rounded-xl p-4 flex items-center justify-between cursor-pointer hover:border-gold/50 bg-white/[0.01] transition-all relative payment-method-label" id="label-paytm">
+              <div class="flex items-center gap-3">
+                <input type="radio" name="paymentRadio" id="radio-paytm" value="Paytm" class="accent-gold w-4 h-4 mr-1">
+                <div class="flex flex-col">
+                  <span class="text-sm font-semibold text-white">Paytm</span>
+                  <span class="text-[10px] text-gray-500">Paytm Wallet or UPI App</span>
+                </div>
+              </div>
+              <div class="text-sky-400 bg-white/5 p-2 rounded-lg flex items-center justify-center">
+                <i class="ph-bold ph-wallet text-xl"></i>
+              </div>
+            </label>
+
+            <!-- UPI Card -->
+            <label onclick="selectPaymentMethod('UPI')" class="border border-white/10 rounded-xl p-4 flex items-center justify-between cursor-pointer hover:border-gold/50 bg-white/[0.01] transition-all relative payment-method-label" id="label-upi">
+              <div class="flex items-center gap-3">
+                <input type="radio" name="paymentRadio" id="radio-upi" value="UPI" class="accent-gold w-4 h-4 mr-1">
+                <div class="flex flex-col">
+                  <span class="text-sm font-semibold text-white">UPI Pay</span>
+                  <span class="text-[10px] text-gray-500">BHIM, PhonePe, Any UPI App</span>
+                </div>
+              </div>
+              <div class="text-emerald-400 bg-white/5 p-2 rounded-lg flex items-center justify-center">
+                <i class="ph-bold ph-qr-code text-xl"></i>
+              </div>
+            </label>
+
+            <!-- Cash on Delivery Card -->
+            <label onclick="selectPaymentMethod('Cash on Delivery')" class="border border-white/10 rounded-xl p-4 flex items-center justify-between cursor-pointer hover:border-gold/50 bg-white/[0.01] transition-all relative payment-method-label" id="label-cod">
+              <div class="flex items-center gap-3">
+                <input type="radio" name="paymentRadio" id="radio-cod" value="Cash on Delivery" class="accent-gold w-4 h-4 mr-1">
+                <div class="flex flex-col">
+                  <span class="text-sm font-semibold text-white">Cash on Delivery</span>
+                  <span class="text-[10px] text-gray-500">Pay Cash at your door</span>
+                </div>
+              </div>
+              <div class="text-yellow-500 bg-white/5 p-2 rounded-lg flex items-center justify-center">
+                <i class="ph-bold ph-money text-xl"></i>
+              </div>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Order Summary & Placement Action -->
+      <div class="flex flex-col gap-6 h-fit lg:sticky lg:top-24">
+        
+        <!-- Cart Summary Card -->
+        <div class="glass-card p-6 md:p-7 flex flex-col gap-5">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-white pb-3 border-b border-white/10 flex items-center gap-2">
+            <i class="ph ph-receipt text-gold"></i> Order Invoice
+          </h3>
+          
+          <!-- Item List Scrollable -->
+          <div id="invoice-items-list" class="max-h-48 overflow-y-auto pr-1 flex flex-col gap-3">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- Promo Code Input -->
+          <div class="border-t border-white/5 pt-4 flex flex-col gap-2">
+            <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Apply Promo Code</label>
+            <div class="flex gap-2">
+              <input type="text" id="promo-input" placeholder="e.g. BANARAS20" class="flex-1 px-3 py-2 bg-white/5 border border-white/10 text-white text-xs rounded-lg focus:outline-none focus:border-gold">
+              <button onclick="applyCheckoutPromoCode()" class="btn-outline px-3.5 py-2 text-xs">Apply</button>
+            </div>
+            <span id="promo-msg" class="text-[10px] hidden font-medium"></span>
+          </div>
+
+          <!-- Total summary counts -->
+          <div class="border-t border-white/10 pt-4 space-y-3.5 text-xs text-gray-300">
+            <div class="flex justify-between">
+              <span>Subtotal</span>
+              <span id="invoice-subtotal" class="text-white">₹0</span>
+            </div>
+            <div id="invoice-discount-row" class="flex justify-between text-emerald-400 hidden">
+              <span id="invoice-discount-label">Discount</span>
+              <span id="invoice-discount-val">-₹0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Tax (GST 5%)</span>
+              <span id="invoice-tax" class="text-white">₹0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Delivery Charges</span>
+              <span id="invoice-delivery" class="text-white">₹0</span>
+            </div>
+            <div class="border-t border-white/10 pt-4 flex justify-between text-sm font-bold text-white">
+              <span>Total Amount</span>
+              <span id="invoice-total" class="gold-gradient-text text-base">₹0</span>
+            </div>
+          </div>
+
+          <!-- Trigger checkout btn -->
+          <button type="button" onclick="triggerFormSubmit()" id="place-order-btn" class="btn-primary w-full py-4 flex justify-center items-center gap-2 text-sm">
+            <i class="ph ph-shield-check text-lg"></i> <span id="btn-text">Place Order & Pay</span>
+          </button>
+
+          <p class="text-gray-500 text-[10px] text-center">Secure Payments • Dynamic MongoDB Delivery Status Monitor</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Step 3: SUCCESS ORDER CONFIRMATION VIEW -->
+    <div id="checkout-success-layout" class="hidden glass-card p-8 md:p-12 text-center max-w-xl mx-auto flex flex-col items-center gap-6">
+      <div class="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/10">
+        <i class="ph-bold ph-check text-3xl"></i>
+      </div>
+      <div>
+        <h2 class="font-serif text-2xl md:text-3xl text-white font-bold">Order Received Successfully!</h2>
+        <p class="text-sm text-gray-400 mt-2">Your payment has been logged, and your order was successfully saved to MongoDB.</p>
+      </div>
+      <div class="w-full bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col gap-2.5 text-xs text-left">
+        <div class="flex justify-between border-b border-white/5 pb-2">
+          <span class="text-gray-400">Order Reference:</span>
+          <span id="success-order-id" class="text-white font-mono font-semibold">#</span>
+        </div>
+        <div class="flex justify-between border-b border-white/5 pb-2">
+          <span class="text-gray-400">Total Paid:</span>
+          <span id="success-amount" class="text-gold font-bold">₹0</span>
+        </div>
+        <div class="flex justify-between border-b border-white/5 pb-2">
+          <span class="text-gray-400">Method of Payment:</span>
+          <span id="success-method" class="text-white font-medium">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Fulfillment Status:</span>
+          <span class="text-emerald-400 font-semibold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Placed (Preparing)
+          </span>
+        </div>
+      </div>
+      <div class="flex gap-3 w-full">
+        <a href="orders.html" class="btn-primary flex-1 py-3 text-sm flex items-center justify-center gap-2">
+          <i class="ph ph-map-pin-line text-lg"></i> Track Live Status
+        </a>
+        <a href="menu.html" class="btn-outline flex-1 py-3 text-sm flex items-center justify-center gap-2">
+          Return to Menu
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── RAZORPAY SANDBOX MOCK MODAL POPUP ── -->
+  <div id="sandbox-payment-modal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/85 backdrop-blur-sm"></div>
+    <div class="flex min-h-screen items-center justify-center p-4">
+      <div class="relative glass-card bg-[#0e1118] border border-blue-500/20 max-w-md w-full shadow-2xl overflow-hidden flex flex-col">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-slate-900 to-slate-950 p-5 flex items-center justify-between border-b border-white/5">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-sm">R</div>
+            <div>
+              <h4 class="text-sm font-bold text-white">Razorpay Checkout Sandbox</h4>
+              <span class="text-[9px] text-blue-400 tracking-wider font-semibold uppercase">Interactive Payment Simulation</span>
+            </div>
+          </div>
+          <button onclick="closeSandboxPayment()" class="text-gray-400 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-lg">
+            <i class="ph ph-x text-base"></i>
+          </button>
+        </div>
+        
+        <!-- Content -->
+        <div class="p-6 flex flex-col gap-5">
+          <div class="flex justify-between items-center bg-white/[0.02] border border-white/5 rounded-xl p-4">
+            <div class="text-left">
+              <span class="text-[10px] text-gray-400 block uppercase font-medium">Merchant</span>
+              <span class="text-sm font-semibold text-white">Banaras Delight Restaurant</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-gray-400 block uppercase font-medium">Invoice Total</span>
+              <span id="sandbox-total-amount" class="text-lg font-bold text-blue-400">₹0</span>
+            </div>
+          </div>
+
+          <!-- Method Card Preview -->
+          <div class="border border-white/10 rounded-xl p-4 bg-white/[0.01] flex flex-col gap-3">
+            <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Payment Selected</span>
+            <div class="flex items-center justify-between" id="sandbox-selected-method-preview">
+              <div class="flex items-center gap-2">
+                <i class="ph ph-device-mobile text-lg text-gold"></i>
+                <span id="sandbox-method-name" class="text-sm text-white font-semibold">-</span>
+              </div>
+              <span class="text-[9px] px-2 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded font-bold uppercase">SECURE GATEWAY</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 text-center flex flex-col gap-2">
+            <span class="text-xs text-blue-300 font-semibold">Simulate Razorpay Gateway Response</span>
+            <p class="text-[10px] text-gray-400 leading-normal">Test successful order processing and webhooks signature integration, or simulate payment cancellations.</p>
+            <div class="grid grid-cols-2 gap-3 mt-2">
+              <button onclick="simulatePaymentSuccess()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-xs shadow-lg shadow-emerald-600/15 transition-all flex items-center justify-center gap-1">
+                <i class="ph ph-check-circle text-sm"></i> Simulate Success
+              </button>
+              <button onclick="simulatePaymentFailure()" class="bg-rose-600 hover:bg-rose-500 text-white font-semibold py-2.5 rounded-lg text-xs shadow-lg shadow-rose-600/15 transition-all flex items-center justify-center gap-1">
+                <i class="ph ph-warning-circle text-sm"></i> Simulate Failure
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 hidden transition-all duration-300 transform translate-y-0 opacity-100">
+    <i id="toast-icon" class="ph-fill ph-check-circle text-emerald-400 text-xl"></i>
+    <span id="toast-message" class="text-sm font-medium">Action successful!</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 py-6 text-center text-xs text-gray-600 mt-auto bg-black/20">
+    <p>&copy; 2026 Banaras Delight. Checkout Center. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const API_BASE = 'http://localhost:5000/api/v1';
+
+    let cartData = [];
+    let selectedPayment = 'Google Pay'; // Default
+    let orderTotalPrice = 0;
+    let promoApplied = false;
+    let promoDiscountPercent = 0;
+
+    // Temporary storage for order placement
+    let pendingOrderId = null;
+    let pendingRazorpayOrderId = null;
+
+    // Cart migration helper (clears or updates any stale USD cart items)
+    function migrateCartCurrency() {
+      let cart = JSON.parse(localStorage.getItem('tgw_cart')) || [];
+      let updated = false;
+      cart = cart.map(item => {
+        if (item.price < 45) { // stale USD price
+          item.price = Math.round(item.price * 25);
+          updated = true;
+        }
+        return item;
+      });
+      if (updated) {
+        localStorage.setItem('tgw_cart', JSON.stringify(cart));
+      }
+    }
+
+    // Authenticate and initialize page
+    async function initCheckoutPage() {
+      const token = localStorage.getItem('tgw_token');
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.body.classList.remove('invisible');
+          // Autofill email and name if available
+          document.getElementById('cust-name').value = data.data.name || '';
+          document.getElementById('cust-email').value = data.data.email || '';
+          
+          migrateCartCurrency();
+          loadCartData();
+          updateCartCount();
+        } else {
+          localStorage.removeItem('tgw_token');
+          window.location.href = 'login.html';
+        }
+      } catch (err) {
+        console.warn('Network issue during auth verification. Fallback active.', err);
+        document.body.classList.remove('invisible');
+        migrateCartCurrency();
+        loadCartData();
+        updateCartCount();
+      }
+    }
+
+    window.onload = initCheckoutPage;
+
+    // Load Cart Items from LocalStorage
+    function loadCartData() {
+      cartData = JSON.parse(localStorage.getItem('tgw_cart')) || [];
+      if (cartData.length === 0) {
+        showToast('Your cart is empty. Redirecting to menu...', 'warning');
+        setTimeout(() => { window.location.href = 'menu.html'; }, 2000);
+        return;
+      }
+      renderInvoiceSummary();
+    }
+
+    // Render items invoice summary
+    function renderInvoiceSummary() {
+      const container = document.getElementById('invoice-items-list');
+      container.innerHTML = '';
+
+      let subtotal = 0;
+      cartData.forEach(item => {
+        subtotal += item.price * item.quantity;
+        const row = document.createElement('div');
+        row.className = 'flex justify-between items-center text-xs text-gray-300 py-1.5 border-b border-white/[0.03]';
+        row.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-white font-medium">${item.name}</span>
+            <span class="text-gray-500 font-mono text-[10px]">x${item.quantity}</span>
+          </div>
+          <span class="font-semibold text-white">₹${item.price * item.quantity}</span>`;
+        container.appendChild(row);
+      });
+
+      calculateTotals(subtotal);
+    }
+
+    // Compute pricing splits
+    function calculateTotals(subtotal) {
+      let discount = 0;
+      const discountRow = document.getElementById('invoice-discount-row');
+      const discountVal = document.getElementById('invoice-discount-val');
+      const discountLabel = document.getElementById('invoice-discount-label');
+
+      if (promoApplied && promoDiscountPercent > 0) {
+        discount = subtotal * (promoDiscountPercent / 100);
+        discountRow.classList.remove('hidden');
+        discountLabel.textContent = `Discount (${promoDiscountPercent}%)`;
+        discountVal.textContent = `-₹${Math.round(discount)}`;
+      } else {
+        discountRow.classList.add('hidden');
+      }
+
+      const discountedSubtotal = subtotal - discount;
+      const tax = discountedSubtotal * 0.05; // 5% GST
+      const delivery = discountedSubtotal > 0 ? (discountedSubtotal > 500 ? 0 : 50) : 0;
+      orderTotalPrice = Math.round(discountedSubtotal + tax + delivery);
+
+      document.getElementById('invoice-subtotal').textContent = `₹${subtotal}`;
+      document.getElementById('invoice-tax').textContent = `₹${Math.round(tax)}`;
+      document.getElementById('invoice-delivery').textContent = delivery === 0 && discountedSubtotal > 0 ? 'FREE' : `₹${delivery}`;
+      document.getElementById('invoice-total').textContent = `₹${orderTotalPrice}`;
+
+      // Update place order button text based on method
+      updateButtonText();
+    }
+
+    function updateButtonText() {
+      const btn = document.getElementById('btn-text');
+      if (selectedPayment === 'Cash on Delivery') {
+        btn.textContent = `Place Order (COD) - ₹${orderTotalPrice}`;
+      } else {
+        btn.textContent = `Pay & Place Order - ₹${orderTotalPrice}`;
+      }
+    }
+
+    // Select payment method visually
+    function selectPaymentMethod(method) {
+      selectedPayment = method;
+      
+      // Update radio check
+      const radioId = method === 'Google Pay' ? 'radio-gpay' :
+                      method === 'Paytm' ? 'radio-paytm' :
+                      method === 'UPI' ? 'radio-upi' : 'radio-cod';
+      document.getElementById(radioId).checked = true;
+
+      // Update active highlight classes
+      document.querySelectorAll('.payment-method-label').forEach(lbl => {
+        lbl.classList.remove('pm-card-selected');
+      });
+
+      const labelId = method === 'Google Pay' ? 'label-gpay' :
+                      method === 'Paytm' ? 'label-paytm' :
+                      method === 'UPI' ? 'label-upi' : 'label-cod';
+      document.getElementById(labelId).classList.add('pm-card-selected');
+
+      updateButtonText();
+    }
+
+    // Apply Coupon codes
+    function applyCheckoutPromoCode() {
+      const code = document.getElementById('promo-input').value.toUpperCase().trim();
+      const msg = document.getElementById('promo-msg');
+      
+      msg.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+      
+      if (code === 'GOLDEN20' || code === 'BANARAS20') {
+        promoApplied = true;
+        promoDiscountPercent = 20;
+        msg.textContent = 'BANARAS20 coupon applied! 20% discount added.';
+        msg.classList.add('text-emerald-400');
+        showToast('Promo code applied successfully!');
+      } else if (code === 'WELCOME10') {
+        promoApplied = true;
+        promoDiscountPercent = 10;
+        msg.textContent = 'WELCOME10 coupon applied! 10% discount added.';
+        msg.classList.add('text-emerald-400');
+        showToast('Promo code applied successfully!');
+      } else {
+        promoApplied = false;
+        promoDiscountPercent = 0;
+        msg.textContent = 'Invalid promo code. Use WELCOME10 or BANARAS20.';
+        msg.classList.add('text-rose-400');
+        showToast('Invalid promo code.', 'error');
+      }
+
+      renderInvoiceSummary();
+    }
+
+    // Trigger forms validation & submit
+    function triggerFormSubmit() {
+      const form = document.getElementById('checkout-form');
+      if (form.reportValidity()) {
+        form.requestSubmit();
+      }
+    }
+
+    // Process place order submission
+    async function processCheckoutSubmit(event) {
+      event.preventDefault();
+      const token = localStorage.getItem('tgw_token');
+
+      const submitBtn = document.getElementById('place-order-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="ph ph-spinner animate-spin text-lg"></i> Processing...';
+
+      // Assemble payload
+      const orderItems = cartData.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        foodItem: item.id
+      }));
+
+      const shippingAddress = {
+        name: document.getElementById('cust-name').value.trim(),
+        phone: document.getElementById('cust-phone').value.trim(),
+        email: document.getElementById('cust-email').value.trim(),
+        address: document.getElementById('cust-address').value.trim(),
+        city: document.getElementById('cust-city').value.trim(),
+        postalCode: document.getElementById('cust-pin').value.trim(),
+        notes: document.getElementById('cust-notes').value.trim()
+      };
+
+      const cartSubtotal = cartData.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+      let discount = 0;
+      if (promoApplied && promoDiscountPercent > 0) {
+        discount = cartSubtotal * (promoDiscountPercent / 100);
+      }
+      const discountedSubtotal = cartSubtotal - discount;
+      const taxPrice = Math.round(discountedSubtotal * 0.05);
+      const shippingPrice = discountedSubtotal > 500 ? 0 : 50;
+      const totalPrice = discountedSubtotal + taxPrice + shippingPrice;
+
+      const orderPayload = {
+        orderItems,
+        shippingAddress,
+        paymentMethod: selectedPayment,
+        itemsPrice: discountedSubtotal,
+        taxPrice,
+        shippingPrice,
+        totalPrice
+      };
+
+      try {
+        // 1. Create order in backend MongoDB
+        const orderRes = await fetch(`${API_BASE}/orders`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(orderPayload)
+        });
+        const orderData = await orderRes.json();
+
+        if (!orderData.success) {
+          showToast(orderData.error || 'Failed to place order', 'error');
+          resetSubmitBtn();
+          return;
+        }
+
+        const localOrder = orderData.data;
+        pendingOrderId = localOrder._id;
+
+        // 2. Resolve Payment Route based on Payment selection
+        if (selectedPayment === 'Cash on Delivery') {
+          // COD goes straight to success
+          completeOrderFlowSuccess(localOrder._id, localOrder.totalPrice, 'Cash on Delivery');
+        } else {
+          // Call payment backend gateway initiator
+          const payRes = await fetch(`${API_BASE}/payment/create-order`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ amount: totalPrice })
+          });
+          const payData = await payRes.json();
+
+          if (!payData.success) {
+            showToast('Gateway initialization error.', 'error');
+            resetSubmitBtn();
+            return;
+          }
+
+          const rzpOrder = payData.data;
+          pendingRazorpayOrderId = rzpOrder.id;
+
+          if (rzpOrder.isMock) {
+            // Trigger Sandbox Modal Simulator
+            openSandboxPayment(totalPrice);
+          } else {
+            // Run real Razorpay checkout popup
+            initializeRealRazorpay(payData.key, rzpOrder, localOrder);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Connection error during order checkout.', 'error');
+        resetSubmitBtn();
+      }
+    }
+
+    // Real Razorpay popup launcher
+    function initializeRealRazorpay(key, rzpOrder, localOrder) {
+      const token = localStorage.getItem('tgw_token');
+
+      const options = {
+        key: key,
+        amount: rzpOrder.amount,
+        currency: rzpOrder.currency,
+        name: "Banaras Delight",
+        description: `Order #${localOrder._id.substr(-6)}`,
+        order_id: rzpOrder.id,
+        handler: async function (response) {
+          try {
+            const verifyRes = await fetch(`${API_BASE}/payment/verify`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                orderId: localOrder._id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                method: selectedPayment
+              })
+            });
+            const verifyData = await verifyRes.json();
+
+            if (verifyData.success) {
+              completeOrderFlowSuccess(localOrder._id, localOrder.totalPrice, selectedPayment);
+            } else {
+              showToast('Payment authentication signature invalid.', 'error');
+              resetSubmitBtn();
+            }
+          } catch (err) {
+            showToast('Signature validation network error.', 'error');
+            resetSubmitBtn();
+          }
+        },
+        prefill: {
+          name: document.getElementById('cust-name').value,
+          email: document.getElementById('cust-email').value,
+          contact: document.getElementById('cust-phone').value
+        },
+        theme: { color: "#e9b824" },
+        modal: {
+          ondismiss: function() {
+            showToast('Gateway authorization dismissed by user.', 'error');
+            resetSubmitBtn();
+          }
+        }
+      };
+
+      const rzpObj = new Razorpay(options);
+      rzpObj.open();
+    }
+
+    // Custom Sandbox payment handlers
+    function openSandboxPayment(amount) {
+      document.getElementById('sandbox-total-amount').textContent = `₹${amount}`;
+      document.getElementById('sandbox-method-name').textContent = selectedPayment;
+      document.getElementById('sandbox-payment-modal').classList.remove('hidden');
+    }
+
+    function closeSandboxPayment() {
+      document.getElementById('sandbox-payment-modal').classList.add('hidden');
+      showToast('Payment process cancelled.', 'error');
+      resetSubmitBtn();
+    }
+
+    async function simulatePaymentSuccess() {
+      document.getElementById('sandbox-payment-modal').classList.add('hidden');
+      const token = localStorage.getItem('tgw_token');
+
+      try {
+        const verifyRes = await fetch(`${API_BASE}/payment/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            orderId: pendingOrderId,
+            razorpay_order_id: pendingRazorpayOrderId,
+            razorpay_payment_id: `pay_mock_${Math.random().toString(36).substr(2, 9)}`,
+            razorpay_signature: 'mock_signature',
+            method: selectedPayment
+          })
+        });
+        const verifyData = await verifyRes.json();
+
+        if (verifyData.success) {
+          completeOrderFlowSuccess(pendingOrderId, orderTotalPrice, selectedPayment);
+        } else {
+          showToast('Mock payment signature validation failed.', 'error');
+          resetSubmitBtn();
+        }
+      } catch (err) {
+        showToast('Sandbox connection verification error.', 'error');
+        resetSubmitBtn();
+      }
+    }
+
+    function simulatePaymentFailure() {
+      document.getElementById('sandbox-payment-modal').classList.add('hidden');
+      showToast('Transaction declined. Please select another method.', 'error');
+      resetSubmitBtn();
+    }
+
+    function resetSubmitBtn() {
+      const submitBtn = document.getElementById('place-order-btn');
+      submitBtn.disabled = false;
+      updateButtonText();
+    }
+
+    // Complete order placement transition UI
+    function completeOrderFlowSuccess(orderId, total, method) {
+      // Clear Cart
+      localStorage.removeItem('tgw_cart');
+      updateCartCount();
+
+      // Configure success elements
+      document.getElementById('success-order-id').textContent = `#${orderId.toUpperCase()}`;
+      document.getElementById('success-amount').textContent = `₹${total}`;
+      document.getElementById('success-method').textContent = method;
+
+      // Hide layout, show success
+      document.getElementById('checkout-form-layout').classList.add('hidden');
+      document.getElementById('checkout-title-area').classList.add('hidden');
+      document.getElementById('checkout-success-layout').classList.remove('hidden');
+
+      showToast('Order successfully confirmed!');
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('tgw_cart')) || [];
+      const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+      const countEl = document.getElementById('cart-count');
+      if (countEl) {
+        countEl.textContent = totalItems;
+        if (totalItems > 0) countEl.classList.remove('hidden');
+        else countEl.classList.add('hidden');
+      }
+    }
+
+    // Toast manager
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+      
+      toastMsg.textContent = message;
+      
+      if (type === 'success') {
+        toastIcon.className = 'ph-fill ph-check-circle text-emerald-400 text-xl';
+        toast.className = 'fixed bottom-6 right-6 bg-[#111] border border-emerald-500/30 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100';
+      } else if (type === 'error') {
+        toastIcon.className = 'ph-fill ph-warning-circle text-rose-400 text-xl';
+        toast.className = 'fixed bottom-6 right-6 bg-[#111] border border-rose-500/30 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100';
+      } else {
+        toastIcon.className = 'ph-fill ph-info text-gold text-xl';
+        toast.className = 'fixed bottom-6 right-6 bg-[#111] border border-gold/30 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100';
+      }
+      
+      toast.classList.remove('hidden');
+      
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-6');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+          toast.classList.remove('opacity-0', 'translate-y-6');
+        }, 300);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+/* custom.css – UI tweaks after Gallery/Chef removal */
+/* Adjust spacing where sections were removed */
+.section-after-removal { margin-top: 2rem; }
+/* Ensure navbar items are evenly spaced */
+#navbar .flex.items-center > a { margin-right: 1rem; }
+/* Footer quick‑link alignment */
+footer .space-y-3 li { margin-bottom: 0.5rem; }
+/* Card hover enhancements */
+.glass-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+/* Responsive adjustments for the homepage grid */
+@media (min-width: 768px) {
+  .homepage-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .homepage-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

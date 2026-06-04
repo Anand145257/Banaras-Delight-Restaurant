@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Track your orders at Banaras Delight.">
+  <title>My Orders | Banaras Delight</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- CSS Frameworks -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gold: { light: '#ffd275', DEFAULT: '#f15a24', dark: '#c83b0e' },
+            dark: { bg: '#0d0603', surface: '#160a05', lighter: '#241008', card: '#1b0c06', border: '#33180e' }
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'] }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <style>
+    * { scrollbar-width: thin; scrollbar-color: #f15a24 #0d0603; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0d0603; }
+    ::-webkit-scrollbar-thumb { background: #f15a24; border-radius: 3px; }
+    ::selection { background: #f15a24; color: white; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0d0603;
+      background-image: radial-gradient(ellipse at 50% 0%, rgba(241,90,36,0.08) 0%, transparent 60%);
+      background-attachment: fixed;
+    }
+    
+    .glass-card {
+      background: rgba(22, 10, 5, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(241, 90, 36, 0.08);
+      border-radius: 1rem;
+    }
+    
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #ffd275, #f15a24, #c83b0e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f15a24, #c83b0e);
+      color: white;
+      font-weight: 600;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 10px 15px -3px rgba(241, 90, 36, 0.2);
+      transform: translateY(-1px);
+    }
+
+    /* Timeline progress tracker */
+    .step-active .step-icon {
+      background-color: #f15a24;
+      color: black;
+      border-color: #f15a24;
+      box-shadow: 0 0 10px rgba(241, 90, 36, 0.4);
+    }
+    .step-active .step-line {
+      background-color: #f15a24;
+    }
+    .step-completed .step-icon {
+      background-color: #f15a24;
+      color: black;
+      border-color: #f15a24;
+    }
+    .step-completed .step-line {
+      background-color: #f15a24;
+    }
+  </style>
+</head>
+<body class="antialiased text-gray-200 invisible min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav id="navbar" class="fixed w-full z-40 py-3.5 px-6 md:px-12 bg-dark-bg/85 backdrop-blur-md border-b border-white/5">
+    <div class="flex items-center justify-between max-w-7xl mx-auto">
+      <a href="index.html" class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center shadow-lg shadow-gold/20">
+          <span class="text-white font-serif font-bold text-base">B</span>
+        </div>
+        <span class="text-gold font-serif text-lg font-bold hidden sm:block">Banaras Delight</span>
+      </a>
+      <div class="hidden lg:flex items-center space-x-8 text-gray-300 font-medium text-sm tracking-wide">
+        <a href="index.html" class="hover:text-gold transition-colors duration-300 relative group">Home<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+        <a href="menu.html" class="hover:text-gold transition-colors duration-300 relative group">Menu<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+        <a href="orders.html" class="text-gold transition-colors duration-300 relative group">Track Orders<span class="absolute -bottom-1 left-0 w-full h-0.5 bg-gold"></span></a>
+        <a href="contact.html" class="hover:text-gold transition-colors duration-300 relative group">Contact<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+      </div>
+      <div class="hidden lg:flex items-center space-x-3">
+        <a href="cart.html" class="p-2 text-gray-300 hover:text-gold relative">
+          <i class="ph ph-shopping-cart text-xl"></i>
+          <span id="cart-count" class="absolute -top-0.5 -right-0.5 bg-gold text-white text-[9px] font-bold w-4.5 h-4.5 flex items-center justify-center rounded-full">0</span>
+        </a>
+        <a href="reservation.html" class="btn-primary py-2 px-4.5 text-xs">Book Table</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-grow pt-24 pb-16 max-w-6xl w-full mx-auto px-6 md:px-12 flex flex-col gap-6">
+    
+    <div>
+      <span class="text-gold text-xs font-semibold uppercase tracking-wider block">Order History</span>
+      <h1 class="font-serif text-3xl md:text-4xl text-white font-bold mt-0.5">Track Your <span class="gold-gradient-text">Orders</span></h1>
+      <p class="text-gray-400 text-xs mt-1">Review your past orders and monitor your delivery progress in real-time.</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-orders-view" class="hidden glass-card p-16 text-center flex flex-col items-center gap-4">
+      <i class="ph ph-bag-open text-6xl text-gray-600"></i>
+      <h3 class="text-lg font-semibold text-white">No orders placed yet</h3>
+      <p class="text-sm text-gray-400 max-w-sm mt-0.5">You haven't ordered any delicious meals from us yet. Start exploring our exquisite menu!</p>
+      <a href="menu.html" class="btn-primary px-6 py-3 text-sm mt-2">
+        Browse Our Menu
+      </a>
+    </div>
+
+    <!-- Orders Grid Layout -->
+    <div id="orders-layout" class="grid grid-cols-1 lg:grid-cols-3 gap-8 hidden">
+      
+      <!-- Left Column: Orders list selection -->
+      <div class="lg:col-span-1 flex flex-col gap-4 max-h-[70vh] overflow-y-auto pr-2" id="orders-list-container">
+        <!-- Populated dynamically via JS -->
+      </div>
+
+      <!-- Right Column: Live Tracker and Detailed Summary -->
+      <div class="lg:col-span-2 flex flex-col gap-6" id="order-details-container">
+        
+        <!-- Live tracking timeline card -->
+        <div class="glass-card p-6 md:p-8 flex flex-col gap-6">
+          <div class="flex justify-between items-center border-b border-white/5 pb-4">
+            <div>
+              <span class="text-[10px] text-gray-500 uppercase tracking-wider block font-semibold">Live Progress</span>
+              <h3 class="text-base font-bold text-white mt-0.5 flex items-center gap-2">
+                Order <span id="track-order-id" class="text-gold font-mono">#</span>
+              </h3>
+            </div>
+            <span id="track-payment-badge" class="px-2 py-0.5 rounded text-[10px] font-bold">Paid</span>
+          </div>
+
+          <!-- Step Progress Visual Timeline -->
+          <div class="relative flex flex-col sm:flex-row justify-between items-center gap-8 sm:gap-4 py-4 w-full">
+            
+            <!-- Horizontal line for sm and up -->
+            <div class="absolute top-[28px] left-[5%] right-[5%] h-0.5 bg-white/10 hidden sm:block z-0"></div>
+
+            <!-- Step 1: Placed -->
+            <div class="flex sm:flex-col items-center gap-3 sm:text-center z-10 w-full sm:w-1/4" id="step-placed">
+              <div class="step-icon w-10 h-10 rounded-full border border-white/15 bg-dark-lighter text-gray-400 flex items-center justify-center font-bold text-sm relative transition-all duration-300">
+                <i class="ph ph-clipboard-text text-base"></i>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-white">Order Placed</span>
+                <span class="text-[9px] text-gray-500">Order recorded</span>
+              </div>
+            </div>
+
+            <!-- Step 2: Preparing -->
+            <div class="flex sm:flex-col items-center gap-3 sm:text-center z-10 w-full sm:w-1/4" id="step-preparing">
+              <div class="step-icon w-10 h-10 rounded-full border border-white/15 bg-dark-lighter text-gray-400 flex items-center justify-center font-bold text-sm relative transition-all duration-300">
+                <i class="ph ph-bowl-food text-base"></i>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-white">Preparing</span>
+                <span class="text-[9px] text-gray-500">Cooking your food</span>
+              </div>
+            </div>
+
+            <!-- Step 3: Out for Delivery -->
+            <div class="flex sm:flex-col items-center gap-3 sm:text-center z-10 w-full sm:w-1/4" id="step-delivery">
+              <div class="step-icon w-10 h-10 rounded-full border border-white/15 bg-dark-lighter text-gray-400 flex items-center justify-center font-bold text-sm relative transition-all duration-300">
+                <i class="ph ph-moped text-base"></i>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-white">Out for Delivery</span>
+                <span class="text-[9px] text-gray-500">On the way to you</span>
+              </div>
+            </div>
+
+            <!-- Step 4: Delivered -->
+            <div class="flex sm:flex-col items-center gap-3 sm:text-center z-10 w-full sm:w-1/4" id="step-delivered">
+              <div class="step-icon w-10 h-10 rounded-full border border-white/15 bg-dark-lighter text-gray-400 flex items-center justify-center font-bold text-sm relative transition-all duration-300">
+                <i class="ph ph-house-line text-base"></i>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-white">Delivered</span>
+                <span class="text-[9px] text-gray-500">Enjoy your meal!</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Status description card -->
+          <div class="bg-white/[0.01] border border-white/5 p-4 rounded-xl flex items-start gap-3">
+            <i class="ph ph-info text-gold text-lg mt-0.5"></i>
+            <div>
+              <h4 id="track-status-title" class="text-xs font-bold text-white">Your order is being prepared</h4>
+              <p id="track-status-desc" class="text-[11px] text-gray-400 mt-1 leading-normal">Our culinary team is handcrafting your selections with the finest ingredients. It will be dispatched hot and fresh shortly.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed itemized summary card -->
+        <div class="glass-card p-6 md:p-8 flex flex-col gap-6">
+          <h3 class="text-base font-bold text-white border-b border-white/5 pb-3">Order Invoice & Shipping Details</h3>
+          
+          <!-- Item list -->
+          <div class="flex flex-col gap-3" id="track-items-list">
+            <!-- Dynamically populated -->
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-white/5 pt-5">
+            <!-- Shipping Info -->
+            <div class="flex flex-col gap-2.5 text-xs">
+              <h4 class="text-xs font-semibold text-gold uppercase tracking-wider">Delivery Details</h4>
+              <div class="flex flex-col gap-1.5 text-gray-300 leading-relaxed">
+                <p><span class="text-gray-500">Customer:</span> <span id="track-cust-name" class="text-white font-medium">-</span></p>
+                <p><span class="text-gray-500">Phone:</span> <span id="track-cust-phone" class="text-white font-medium">-</span></p>
+                <p><span class="text-gray-500">Email:</span> <span id="track-cust-email" class="text-white font-medium">-</span></p>
+                <p><span class="text-gray-500">Address:</span> <span id="track-cust-address" class="text-white font-medium">-</span></p>
+                <p><span class="text-gray-500">Notes:</span> <span id="track-cust-notes" class="text-white font-medium italic">-</span></p>
+              </div>
+            </div>
+
+            <!-- Bill totals -->
+            <div class="flex flex-col gap-2.5 text-xs justify-end">
+              <h4 class="text-xs font-semibold text-gold uppercase tracking-wider text-left md:text-right">Billing Summary</h4>
+              <div class="flex flex-col gap-2 text-gray-300">
+                <div class="flex justify-between"><span class="text-gray-500">Items Subtotal:</span><span id="track-bill-subtotal">₹0</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Tax (GST 5%):</span><span id="track-bill-tax">₹0</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Delivery Charge:</span><span id="track-bill-delivery">₹0</span></div>
+                <div class="flex justify-between border-t border-white/10 pt-2 text-sm font-bold text-white"><span>Total Amount:</span><span id="track-bill-total" class="gold-gradient-text font-sans">₹0</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Toast notifications -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 hidden transition-all duration-300 transform translate-y-0 opacity-100">
+    <i id="toast-icon" class="ph-fill ph-check-circle text-emerald-400 text-xl"></i>
+    <span id="toast-message" class="text-sm font-medium">Action successful!</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 py-6 text-center text-xs text-gray-600 mt-auto bg-black/20">
+    <p>&copy; 2026 Banaras Delight. Order Status Monitor. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const API_BASE = 'http://localhost:5000/api/v1';
+    let userOrders = [];
+    let selectedOrderId = null;
+
+    // Secure authentication checks on page load
+    async function verifyAuth() {
+      const token = localStorage.getItem('tgw_token');
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.body.classList.remove('invisible');
+          fetchUserOrders();
+          updateCartCount();
+        } else {
+          localStorage.removeItem('tgw_token');
+          window.location.href = 'login.html';
+        }
+      } catch (err) {
+        console.warn('Network issue during auth verification. Using fallback.');
+        document.body.classList.remove('invisible');
+        fetchUserOrders();
+      }
+    }
+
+    verifyAuth();
+
+    // Fetch user order history
+    async function fetchUserOrders() {
+      const token = localStorage.getItem('tgw_token');
+      try {
+        const res = await fetch(`${API_BASE}/orders/myorders`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const json = await res.json();
+        
+        if (json.success) {
+          userOrders = json.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          
+          if (userOrders.length === 0) {
+            document.getElementById('empty-orders-view').classList.remove('hidden');
+            document.getElementById('orders-layout').classList.add('hidden');
+          } else {
+            document.getElementById('empty-orders-view').classList.add('hidden');
+            document.getElementById('orders-layout').classList.remove('hidden');
+            renderOrdersList(userOrders);
+            // Select first order by default
+            selectOrder(userOrders[0]._id);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Network error while loading orders.', 'error');
+      }
+    }
+
+    // Render left column order selection list
+    function renderOrdersList(orders) {
+      const container = document.getElementById('orders-list-container');
+      container.innerHTML = '';
+
+      orders.forEach(order => {
+        const date = new Date(order.createdAt).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        });
+
+        const activeClass = order._id === selectedOrderId 
+          ? 'border-gold/50 bg-white/[0.04]' 
+          : 'border-white/5 hover:border-gold/20 bg-white/[0.01]';
+        
+        // Define status pill colors
+        let statusBadgeClass = 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30';
+        let statusLabel = 'Placed';
+
+        if (order.status === 'Processing') {
+          statusBadgeClass = 'bg-blue-500/20 text-blue-400 border border-blue-500/30';
+          statusLabel = 'Preparing';
+        } else if (order.status === 'Out for Delivery') {
+          statusBadgeClass = 'bg-purple-500/20 text-purple-400 border border-purple-500/30';
+          statusLabel = 'Out for Delivery';
+        } else if (order.status === 'Delivered') {
+          statusBadgeClass = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          statusLabel = 'Delivered';
+        } else if (order.status === 'Cancelled') {
+          statusBadgeClass = 'bg-rose-500/20 text-rose-400 border border-rose-500/30';
+          statusLabel = 'Cancelled';
+        }
+
+        const div = document.createElement('div');
+        div.className = `glass-card p-4 flex flex-col gap-2.5 cursor-pointer transition-all duration-300 border ${activeClass}`;
+        div.onclick = () => selectOrder(order._id);
+        div.innerHTML = `
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] text-gray-500 font-mono font-bold">#${order._id.substr(-6).toUpperCase()}</span>
+            <span class="text-[10px] text-gray-400">${date}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-white font-medium truncate max-w-[120px]">
+              ${order.orderItems.map(item => item.name).join(', ')}
+            </span>
+            <span class="text-sm font-bold gold-gradient-text">₹${order.totalPrice}</span>
+          </div>
+          <div class="flex justify-between items-center border-t border-white/5 pt-2.5">
+            <span class="text-[9px] px-2 py-0.5 rounded font-bold ${statusBadgeClass}">${statusLabel}</span>
+            <span class="text-[10px] ${order.isPaid ? 'text-emerald-400' : 'text-rose-400'} font-semibold">
+              ${order.isPaid ? 'Paid' : 'Unpaid'}
+            </span>
+          </div>`;
+        container.appendChild(div);
+      });
+    }
+
+    // Handle order selection
+    function selectOrder(orderId) {
+      selectedOrderId = orderId;
+      
+      // Update left list selection border highlight
+      renderOrdersList(userOrders);
+
+      const order = userOrders.find(o => o._id === orderId);
+      if (!order) return;
+
+      // Update right details summary card
+      document.getElementById('track-order-id').textContent = `#${order._id.toUpperCase()}`;
+      
+      // Payment badge
+      const pBadge = document.getElementById('track-payment-badge');
+      if (order.isPaid) {
+        pBadge.textContent = 'Paid';
+        pBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+      } else {
+        pBadge.textContent = 'Payment Pending';
+        pBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30';
+      }
+
+      // Update live step-progress tracking bar
+      updateTrackingTimeline(order.status);
+
+      // Populate item list
+      const itemsContainer = document.getElementById('track-items-list');
+      itemsContainer.innerHTML = '';
+      order.orderItems.forEach(item => {
+        const itemRow = document.createElement('div');
+        itemRow.className = 'flex justify-between items-center text-xs py-2 border-b border-white/[0.03]';
+        itemRow.innerHTML = `
+          <div class="flex items-center gap-1.5">
+            <span class="text-white font-medium">${item.name}</span>
+            <span class="text-gray-500 text-[10px]">x${item.quantity}</span>
+          </div>
+          <span class="text-white font-semibold">₹${item.price * item.quantity}</span>`;
+        itemsContainer.appendChild(itemRow);
+      });
+
+      // Shipping info
+      document.getElementById('track-cust-name').textContent = order.shippingAddress.name || 'Customer';
+      document.getElementById('track-cust-phone').textContent = order.shippingAddress.phone || '-';
+      document.getElementById('track-cust-email').textContent = order.shippingAddress.email || '-';
+      document.getElementById('track-cust-address').textContent = `${order.shippingAddress.address}, ${order.shippingAddress.city} - ${order.shippingAddress.postalCode}`;
+      document.getElementById('track-cust-notes').textContent = order.shippingAddress.notes || 'None';
+
+      // Bill totals
+      const subtotal = order.itemsPrice || (order.totalPrice - order.taxPrice - order.shippingPrice);
+      document.getElementById('track-bill-subtotal').textContent = `₹${subtotal}`;
+      document.getElementById('track-bill-tax').textContent = `₹${order.taxPrice}`;
+      document.getElementById('track-bill-delivery').textContent = order.shippingPrice === 0 ? 'FREE' : `₹${order.shippingPrice}`;
+      document.getElementById('track-bill-total').textContent = `₹${order.totalPrice}`;
+    }
+
+    // Timeline Progress Tracker controller
+    function updateTrackingTimeline(status) {
+      const stepPlaced = document.getElementById('step-placed');
+      const stepPreparing = document.getElementById('step-preparing');
+      const stepDelivery = document.getElementById('step-delivery');
+      const stepDelivered = document.getElementById('step-delivered');
+
+      const titleEl = document.getElementById('track-status-title');
+      const descEl = document.getElementById('track-status-desc');
+
+      // Clear previous classes
+      [stepPlaced, stepPreparing, stepDelivery, stepDelivered].forEach(step => {
+        step.classList.remove('step-active', 'step-completed');
+      });
+
+      if (status === 'Pending') {
+        // Placed
+        stepPlaced.classList.add('step-active');
+        titleEl.textContent = 'Order Placed & Awaiting Confirmation';
+        descEl.textContent = 'We have successfully recorded your order in MongoDB. Once the chef reviews the details, we will begin preparing your hot delicious meal.';
+      } else if (status === 'Processing') {
+        // Preparing
+        stepPlaced.classList.add('step-completed');
+        stepPreparing.classList.add('step-active');
+        titleEl.textContent = 'Chef is preparing your meal';
+        descEl.textContent = 'Our kitchen team is handcrafting your selections with fresh ingredients. It will be cooked and packed shortly.';
+      } else if (status === 'Out for Delivery') {
+        // Out for Delivery
+        stepPlaced.classList.add('step-completed');
+        stepPreparing.classList.add('step-completed');
+        stepDelivery.classList.add('step-active');
+        titleEl.textContent = 'Our delivery partner is on the way';
+        descEl.textContent = 'Your order is hot, packed, and out for delivery! Our rider is navigating their way to your location.';
+      } else if (status === 'Delivered') {
+        // Delivered
+        stepPlaced.classList.add('step-completed');
+        stepPreparing.classList.add('step-completed');
+        stepDelivery.classList.add('step-completed');
+        stepDelivered.classList.add('step-active');
+        titleEl.textContent = 'Order Delivered! Bon Appétit!';
+        descEl.textContent = 'Your meal was successfully delivered to your doorstep. We hope you enjoy the culinary creations from Banaras Delight!';
+      } else if (status === 'Cancelled') {
+        // Cancelled
+        titleEl.textContent = 'Order Cancelled';
+        descEl.textContent = 'This order was cancelled by the restaurant management or payment was declined. Please reach out to customer service for help.';
+      }
+    }
+
+    // Update Global Cart Count
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('tgw_cart')) || [];
+      const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+      
+      document.querySelectorAll('#cart-count, .cart-count').forEach(el => {
+        el.textContent = totalItems;
+        if (totalItems > 0) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+    }
+
+    // Toast manager
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+      
+      toastMsg.textContent = message;
+      
+      if (type === 'success') {
+        toastIcon.className = 'ph-fill ph-check-circle text-emerald-400 text-xl';
+        toast.className = 'fixed bottom-6 right-6 bg-[#111] border border-emerald-500/30 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100';
+      } else if (type === 'error') {
+        toastIcon.className = 'ph-fill ph-warning-circle text-rose-400 text-xl';
+        toast.className = 'fixed bottom-6 right-6 bg-[#111] border border-rose-500/30 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100';
+      } else {
+        toastIcon.className = 'ph-fill ph-info text-gold text-xl';
+        toast.className = 'fixed bottom-6 right-6 bg-[#111] border border-gold/30 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100';
+      }
+      
+      toast.classList.remove('hidden');
+      
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-6');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+          toast.classList.remove('opacity-0', 'translate-y-6');
+        }, 300);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>

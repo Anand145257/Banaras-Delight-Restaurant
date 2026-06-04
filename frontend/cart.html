@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Review your cart and checkout at Banaras Delight.">
+  <title>Your Cart | Banaras Delight</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- CSS Frameworks -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gold: { light: '#ffd275', DEFAULT: '#f15a24', dark: '#c83b0e' },
+            dark: { bg: '#0d0603', surface: '#160a05', lighter: '#241008', card: '#1b0c06', border: '#33180e' }
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'] }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <style>
+    * { scrollbar-width: thin; scrollbar-color: #f15a24 #0d0603; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0d0603; }
+    ::-webkit-scrollbar-thumb { background: #f15a24; border-radius: 3px; }
+    ::selection { background: #f15a24; color: white; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0d0603;
+      background-image: radial-gradient(ellipse at 50% 0%, rgba(241,90,36,0.08) 0%, transparent 60%);
+      background-attachment: fixed;
+    }
+    
+    .glass-card {
+      background: rgba(22, 10, 5, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(241, 90, 36, 0.08);
+      border-radius: 1rem;
+    }
+    
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #ffd275, #f15a24, #c83b0e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+ 
+    .btn-primary {
+      background: linear-gradient(135deg, #f15a24, #c83b0e);
+      color: white;
+      font-weight: 600;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 10px 15px -3px rgba(241, 90, 36, 0.2);
+      transform: translateY(-1px);
+    }
+    
+    .btn-outline {
+      border: 1px solid rgba(241, 90, 36, 0.3);
+      color: #f15a24;
+      font-weight: 500;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+    .btn-outline:hover {
+      background: rgba(241, 90, 36, 0.05);
+      border-color: #f15a24;
+    }
+  </style>
+</head>
+<body class="antialiased text-gray-200 min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav id="navbar" class="fixed w-full z-40 py-3.5 px-6 md:px-12 bg-dark-bg/85 backdrop-blur-md border-b border-white/5">
+    <div class="flex items-center justify-between max-w-7xl mx-auto">
+      <a href="index.html" class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center shadow-lg shadow-gold/20">
+          <span class="text-white font-serif font-bold text-base">B</span>
+        </div>
+        <span class="text-gold font-serif text-lg font-bold">Banaras Delight</span>
+      </a>
+      <div class="hidden lg:flex items-center space-x-8 text-gray-300 font-medium text-sm tracking-wide">
+        <a href="index.html" class="hover:text-gold transition-colors duration-300 relative group">Home<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+        <a href="menu.html" class="hover:text-gold transition-colors duration-300 relative group">Menu<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+        <a href="orders.html" class="hover:text-gold transition-colors duration-300 relative group">Track Orders<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+        <a href="contact.html" class="hover:text-gold transition-colors duration-300 relative group">Contact<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="cart.html" class="p-2 text-gold relative">
+          <i class="ph ph-shopping-cart text-xl"></i>
+          <span id="cart-count" class="absolute -top-0.5 -right-0.5 bg-gold text-white text-[9px] font-bold w-4.5 h-4.5 flex items-center justify-center rounded-full">0</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="flex-grow pt-24 pb-16 max-w-6xl w-full mx-auto px-6 md:px-12 flex flex-col gap-8">
+    
+    <!-- Title and Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column: Cart items list -->
+      <div class="lg:col-span-2 flex flex-col gap-6">
+        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+          <div>
+            <span class="text-gold text-xs font-semibold uppercase tracking-wider block">Review Your Order</span>
+            <h1 class="font-serif text-2xl md:text-3xl text-white font-bold mt-0.5">Your <span class="gold-gradient-text">Cart</span></h1>
+          </div>
+          <a href="menu.html" class="text-gold text-xs font-medium hover:underline flex items-center gap-1.5">
+            <i class="ph ph-arrow-left"></i> Continue Shopping
+          </a>
+        </div>
+        
+        <div class="space-y-4" id="cart-items-container">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+
+      <!-- Right Column: Order Summary -->
+      <div class="flex flex-col gap-6 h-fit lg:sticky lg:top-24">
+        <div class="glass-card p-6 md:p-7 flex flex-col gap-5">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-white pb-3 border-b border-white/10 flex items-center gap-2">
+            <i class="ph ph-receipt text-gold"></i> Order Summary
+          </h3>
+          
+          <div class="space-y-3.5 text-xs text-gray-300">
+            <div class="flex justify-between">
+              <span>Subtotal</span>
+              <span id="cart-subtotal" class="text-white">₹0</span>
+            </div>
+            
+            <!-- Applied Coupon Display -->
+            <div id="summary-discount-row" class="flex justify-between text-emerald-400 hidden">
+              <span id="discount-label">Discount</span>
+              <span id="cart-discount">-₹0</span>
+            </div>
+            
+            <div class="flex justify-between">
+              <span>Tax (GST 5%)</span>
+              <span id="cart-tax" class="text-white">₹0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Delivery Charge</span>
+              <span id="cart-delivery" class="text-white">₹0</span>
+            </div>
+            <div class="border-t border-white/10 pt-4 flex justify-between text-sm font-bold text-white">
+              <span>Total Amount</span>
+              <span id="cart-total" class="gold-gradient-text text-base">₹0</span>
+            </div>
+          </div>
+
+          <!-- Checkout Button -->
+          <div class="flex flex-col gap-3 mt-2">
+            <button id="checkout-btn" onclick="goToCheckout()" class="btn-primary w-full py-3.5 flex justify-center items-center gap-2 text-sm">
+              Proceed to Checkout <i class="ph ph-arrow-right"></i>
+            </button>
+          </div>
+
+          <!-- Promo Code Support -->
+          <div id="promo-code-container" class="border-t border-white/5 pt-4 mt-2 flex flex-col gap-2">
+            <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Have a Promo Code?</label>
+            <div class="flex gap-2">
+              <input type="text" id="promo-input" placeholder="e.g. BANARAS20" class="flex-1 px-3 py-2 bg-white/5 border border-white/10 text-white text-xs rounded-lg focus:outline-none focus:border-gold">
+              <button onclick="applyPromoCode()" class="btn-outline px-3.5 py-2 text-xs">Apply</button>
+            </div>
+            <span id="promo-msg" class="text-[10px] hidden font-medium"></span>
+          </div>
+
+          <p class="text-gray-500 text-[10px] text-center font-medium">Secure SSL Checkout • Standard delivery times apply</p>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Toast Notifications -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 hidden transition-all duration-300 transform translate-y-0 opacity-100">
+    <i id="toast-icon" class="ph-fill ph-check-circle text-emerald-400 text-xl"></i>
+    <span id="toast-message" class="text-sm font-medium">Action successful!</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 py-6 text-center text-xs text-gray-600 mt-auto bg-black/20">
+    <p>&copy; 2026 Banaras Delight. Online Ordering Panel. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const API_BASE = 'http://localhost:5000/api/v1';
+    
+    // Summary DOM variables
+    const cartItemsContainer = document.getElementById('cart-items-container');
+    const subtotalEl = document.getElementById('cart-subtotal');
+    const taxEl = document.getElementById('cart-tax');
+    const deliveryEl = document.getElementById('cart-delivery');
+    const totalEl = document.getElementById('cart-total');
+    const summaryDiscountRow = document.getElementById('summary-discount-row');
+    const cartDiscountEl = document.getElementById('cart-discount');
+    const discountLabel = document.getElementById('discount-label');
+    
+    // State Variables
+    let promoApplied = false;
+    let promoDiscountPercent = 0;
+    let orderTotalPrice = 0;
+
+    // Cart migration helper (clears or updates any stale USD cart items)
+    function migrateCartCurrency() {
+      let cart = JSON.parse(localStorage.getItem('tgw_cart')) || [];
+      let updated = false;
+      cart = cart.map(item => {
+        if (item.price < 45) { // stale USD price
+          item.price = Math.round(item.price * 25);
+          updated = true;
+        }
+        return item;
+      });
+      if (updated) {
+        localStorage.setItem('tgw_cart', JSON.stringify(cart));
+      }
+    }
+
+    // Initialize Page
+    function initCartPage() {
+      migrateCartCurrency();
+      renderCartItems();
+      updateCartCount();
+    }
+
+    window.onload = initCartPage;
+
+    // Renders the cart elements in view
+    function renderCartItems() {
+      const cart = JSON.parse(localStorage.getItem('tgw_cart')) || [];
+      const checkoutBtn = document.getElementById('checkout-btn');
+      
+      if (cart.length === 0) {
+        cartItemsContainer.innerHTML = `
+          <div class="glass-card p-12 text-center">
+            <i class="ph ph-shopping-cart text-5xl text-gray-600 mb-4 block"></i>
+            <p class="text-gray-400 text-sm">Your cart is empty</p>
+            <a href="menu.html" class="text-gold mt-3 inline-block hover:underline text-xs font-medium">Browse Menu →</a>
+          </div>`;
+        if (checkoutBtn) checkoutBtn.disabled = true;
+        recalculateTotals(0);
+        return;
+      }
+
+      if (checkoutBtn) checkoutBtn.disabled = false;
+      cartItemsContainer.innerHTML = '';
+      
+      let subtotal = 0;
+      cart.forEach((item, index) => {
+        subtotal += item.price * item.quantity;
+        const card = document.createElement('div');
+        card.className = 'glass-card p-4 flex flex-col sm:flex-row items-center gap-4 relative group hover:border-gold/20 transition-all duration-300';
+        card.innerHTML = `
+          <img src="${item.image}" onerror="this.src='https://placehold.co/600x400/1a1a1a/e9b824?text=No+Image'" alt="${item.name}" class="w-16 h-16 object-cover rounded-xl flex-shrink-0 bg-[#111]">
+          <div class="flex-grow text-center sm:text-left">
+            <h4 class="text-sm font-semibold text-white font-sans">${item.name}</h4>
+            <p class="gold-gradient-text font-bold text-xs mt-0.5">₹${Math.round(item.price)}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="updateCartItemQty(${index}, -1)" class="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-gold/50 transition-all">
+              <i class="ph ph-minus text-xs"></i>
+            </button>
+            <span class="w-6 text-center text-white font-semibold text-xs">${item.quantity}</span>
+            <button onclick="updateCartItemQty(${index}, 1)" class="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-gold/50 transition-all">
+              <i class="ph ph-plus text-xs"></i>
+            </button>
+          </div>
+          <div class="text-right min-w-[70px]">
+            <p class="text-white font-semibold text-sm">₹${Math.round(item.price * item.quantity)}</p>
+          </div>
+          <button onclick="removeCartItem(${index})" class="absolute top-2.5 right-2.5 text-gray-600 hover:text-rose-400 transition-colors p-1" title="Remove item">
+            <i class="ph ph-x text-sm"></i>
+          </button>`;
+        cartItemsContainer.appendChild(card);
+      });
+
+      recalculateTotals(subtotal);
+    }
+
+    // Increase or decrease quantity
+    function updateCartItemQty(index, change) {
+      let cart = JSON.parse(localStorage.getItem('tgw_cart')) || [];
+      if (cart[index]) {
+        cart[index].quantity += change;
+        if (cart[index].quantity <= 0) {
+          cart.splice(index, 1);
+        }
+        localStorage.setItem('tgw_cart', JSON.stringify(cart));
+        renderCartItems();
+        updateCartCount();
+      }
+    }
+
+    // Remove item completely
+    function removeCartItem(index) {
+      let cart = JSON.parse(localStorage.getItem('tgw_cart')) || [];
+      cart.splice(index, 1);
+      localStorage.setItem('tgw_cart', JSON.stringify(cart));
+      renderCartItems();
+      updateCartCount();
+      showToast('Item removed from cart.');
+    }
+
+    // Totals calculations (INR-based)
+    function recalculateTotals(subtotal) {
+      let discount = 0;
+      if (promoApplied && promoDiscountPercent > 0) {
+        discount = subtotal * (promoDiscountPercent / 100);
+        summaryDiscountRow.classList.remove('hidden');
+        discountLabel.textContent = `Discount (${promoDiscountPercent}%)`;
+        cartDiscountEl.textContent = `-₹${Math.round(discount)}`;
+      } else {
+        summaryDiscountRow.classList.add('hidden');
+      }
+
+      const discountedSubtotal = subtotal - discount;
+      const tax = discountedSubtotal * 0.05; // 5% GST
+      // Free delivery on orders over ₹500, else ₹50 delivery charge
+      const delivery = discountedSubtotal > 0 ? (discountedSubtotal > 500 ? 0 : 50) : 0;
+      orderTotalPrice = Math.round(discountedSubtotal + tax + delivery);
+
+      subtotalEl.textContent = `₹${Math.round(subtotal)}`;
+      taxEl.textContent = `₹${Math.round(tax)}`;
+      deliveryEl.textContent = delivery === 0 && discountedSubtotal > 0 ? 'FREE' : `₹${delivery}`;
+      totalEl.textContent = `₹${orderTotalPrice}`;
+    }
+
+    // Promo Code Application
+    function applyPromoCode() {
+      const code = document.getElementById('promo-input').value.toUpperCase().trim();
+      const msg = document.getElementById('promo-msg');
+      const cart = JSON.parse(localStorage.getItem('tgw_cart')) || [];
+      
+      if (cart.length === 0) {
+        showToast('Add items to apply promo codes!', 'error');
+        return;
+      }
+
+      msg.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+      
+      if (code === 'GOLDEN20' || code === 'BANARAS20') {
+        promoApplied = true;
+        promoDiscountPercent = 20;
+        msg.textContent = 'BANARAS20 coupon applied! 20% discount added.';
+        msg.classList.add('text-emerald-400');
+        showToast('Promo code applied successfully!');
+      } else if (code === 'WELCOME10') {
+        promoApplied = true;
+        promoDiscountPercent = 10;
+        msg.textContent = 'WELCOME10 coupon applied! 10% discount added.';
+        msg.classList.add('text-emerald-400');
+        showToast('Promo code applied successfully!');
+      } else {
+        promoApplied = false;
+        promoDiscountPercent = 0;
+        msg.textContent = 'Invalid promo code. Try WELCOME10 or BANARAS20.';
+        msg.classList.add('text-rose-400');
+        showToast('Invalid promo code.', 'error');
+      }
+      
+      renderCartItems();
+    }
+
+    // Proceed to checkout page redirect
+    function goToCheckout() {
+      const token = localStorage.getItem('tgw_token');
+      if (!token) {
+        showToast('Please sign in to place orders.', 'error');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1200);
+        return;
+      }
+      
+      const cart = JSON.parse(localStorage.getItem('tgw_cart')) || [];
+      if (cart.length === 0) {
+        showToast('Your cart is empty.', 'error');
+        return;
+      }
+
+      window.location.href = 'checkout.html';
+    }
+
+    // Global Image Error Handler (inline)
+    document.addEventListener('error', (e) => {
+      if (e.target.tagName === 'IMG') {
+        e.target.src = 'https://placehold.co/600x400/1a1a1a/e9b824?text=No+Image';
+        e.target.classList.add('opacity-60');
+      }
+    }, true);
+
+    // Update Global Cart Count
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('tgw_cart')) || [];
+      const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+      
+      document.querySelectorAll('#cart-count, .cart-count').forEach(el => {
+        el.textContent = totalItems;
+        if (totalItems > 0) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+    }
+
+    // Toast manager
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+      
+      toastMsg.textContent = message;
+      
+      if (type === 'success') {
+        toastIcon.className = 'ph-fill ph-check-circle text-emerald-400 text-xl';
+        toast.className = 'fixed bottom-6 right-6 bg-[#111] border border-emerald-500/30 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100';
+      } else if (type === 'error') {
+        toastIcon.className = 'ph-fill ph-warning-circle text-rose-400 text-xl';
+        toast.className = 'fixed bottom-6 right-6 bg-[#111] border border-rose-500/30 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100';
+      } else {
+        toastIcon.className = 'ph-fill ph-info text-gold text-xl';
+        toast.className = 'fixed bottom-6 right-6 bg-[#111] border border-gold/30 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100';
+      }
+      
+      toast.classList.remove('hidden');
+      
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-6');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+          toast.classList.remove('opacity-0', 'translate-y-6');
+        }, 300);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>

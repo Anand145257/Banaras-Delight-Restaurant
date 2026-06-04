@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Banaras Delight</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gold: { light: '#ffd275', DEFAULT: '#f15a24', dark: '#c83b0e' },
+            dark: { bg: '#0d0603', surface: '#160a05', lighter: '#241008', card: '#1b0c06', border: '#33180e' }
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'] }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">@layer components{.btn-primary{@apply w-full px-7 py-3.5 bg-gradient-to-r from-gold to-gold-dark text-white font-semibold rounded-xl shadow-lg hover:shadow-gold/25 transition-all duration-300 transform hover:-translate-y-0.5}.glass-card{@apply bg-white/[0.03] backdrop-blur-2xl border border-white/[0.06] shadow-2xl rounded-2xl}.heading-serif{@apply font-serif font-bold}.input-field{@apply w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-all duration-300}}</style>
+  <style>
+    ::selection{background:#f15a24;color:white}body{font-family:'Inter',sans-serif;background:#0d0603}.font-serif,h1,h2,h3{font-family:'Playfair Display',serif}
+    .gold-gradient-text{background:linear-gradient(135deg,#ffd275,#f15a24,#c83b0e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .login-bg{background:radial-gradient(ellipse at 30% 50%,rgba(241,90,36,0.08) 0%,transparent 60%)}
+  </style>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body class="antialiased text-gray-200 min-h-screen flex flex-col login-bg">
+  <nav class="w-full z-40 py-4 px-6 md:px-12 absolute top-0">
+    <div class="flex items-center justify-between max-w-7xl mx-auto">
+      <a href="index.html" class="flex items-center gap-2.5"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center shadow-lg shadow-gold/20"><span class="text-white font-serif font-bold text-lg">B</span></div><span class="text-gold font-serif text-xl font-bold">Banaras Delight</span></a>
+      <a href="index.html" class="text-gray-400 hover:text-gold text-sm transition-colors flex items-center gap-1"><i class="ph ph-arrow-left"></i> Back to Home</a>
+    </div>
+  </nav>
+
+  <div class="flex-grow flex items-center justify-center px-6 py-20">
+    <div class="w-full max-w-md">
+      <div class="glass-card p-8 md:p-10">
+        <div class="text-center mb-8">
+          <div class="w-14 h-14 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center mx-auto mb-4 shadow-lg shadow-gold/20">
+            <span class="text-white font-serif font-bold text-xl">B</span>
+          </div>
+          <h1 class="heading-serif text-2xl md:text-3xl text-white mb-2">Welcome Back</h1>
+          <p class="text-gray-400 text-sm">Sign in to your account</p>
+        </div>
+
+        <form id="login-form" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
+            <div class="relative">
+              <i class="ph ph-envelope-simple absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+              <input type="email" id="email" required class="input-field pl-11" placeholder="you@example.com">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2">Password</label>
+            <div class="relative">
+              <i class="ph ph-lock-simple absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+              <input type="password" id="password" required class="input-field pl-11" placeholder="••••••••">
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <label class="flex items-center text-gray-400 cursor-pointer gap-2">
+              <input type="checkbox" class="accent-gold w-4 h-4 rounded"> Remember me
+            </label>
+            <a href="#" class="text-gold hover:underline text-xs">Forgot Password?</a>
+          </div>
+          <div id="auth-error" class="hidden text-red-400 text-sm text-center bg-red-900/20 border border-red-800/50 py-2.5 rounded-xl"></div>
+          <button type="submit" class="btn-primary flex justify-center items-center gap-2"><i class="ph ph-sign-in"></i> Sign In</button>
+        </form>
+
+        <p class="text-center text-gray-500 mt-6 text-sm">
+          Don't have an account? <a href="#" class="text-gold hover:underline font-medium">Sign up</a>
+        </p>
+      </div>
+
+      <p class="text-center text-gray-600 text-xs mt-6">&copy; 2026 Banaras Delight. All rights reserved.</p>
+    </div>
+  </div>
+
+  <script src="./js/main.js"></script>
+  <script>
+    // Auto-redirect if already logged in as admin
+    async function checkExistingAuth() {
+      const token = localStorage.getItem('tgw_token');
+      if (token) {
+        try {
+          const res = await fetch('http://localhost:5000/api/v1/auth/me', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (data.success && data.data.role === 'admin') {
+            window.location.href = 'admin.html';
+          }
+        } catch (err) {
+          console.warn('Auto-auth verification failed:', err);
+        }
+      }
+    }
+    checkExistingAuth();
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorEl = document.getElementById('auth-error');
+      errorEl.classList.add('hidden');
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Signing in...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('http://localhost:5000/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem('tgw_token', data.token);
+          try {
+            const meRes = await fetch('http://localhost:5000/api/v1/auth/me', { headers: { 'Authorization': `Bearer ${data.token}` } });
+            const meData = await meRes.json();
+            if (meData.success && meData.data.role === 'admin') { window.location.href = 'admin.html'; return; }
+          } catch(e) { console.error('Failed to fetch user info', e); }
+          window.location.href = 'index.html';
+        } else {
+          errorEl.textContent = data.error || 'Invalid credentials';
+          errorEl.classList.remove('hidden');
+          btn.innerHTML = '<i class="ph ph-sign-in"></i> Sign In';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        errorEl.textContent = 'Server error. Is the backend running?';
+        errorEl.classList.remove('hidden');
+        btn.innerHTML = '<i class="ph ph-sign-in"></i> Sign In';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

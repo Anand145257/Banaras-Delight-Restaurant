@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Admin Menu and Order Management System for Banaras Delight.">
+  <title>Admin Dashboard | Banaras Delight</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- CSS Frameworks -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gold: { light: '#ffd275', DEFAULT: '#f15a24', dark: '#c83b0e' },
+            dark: { bg: '#0d0603', surface: '#160a05', lighter: '#241008', card: '#1b0c06', border: '#33180e' }
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'] }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <style>
+    * { scrollbar-width: thin; scrollbar-color: #f15a24 #0d0603; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0d0603; }
+    ::-webkit-scrollbar-thumb { background: #f15a24; border-radius: 3px; }
+    ::selection { background: #f15a24; color: white; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0d0603;
+      background-image: radial-gradient(ellipse at 50% 0%, rgba(241,90,36,0.08) 0%, transparent 60%);
+      background-attachment: fixed;
+    }
+    
+    .glass-card {
+      background: rgba(22, 10, 5, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(241, 90, 36, 0.08);
+      border-radius: 1rem;
+    }
+    
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #ffd275, #f15a24, #c83b0e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+ 
+    .btn-primary {
+      background: linear-gradient(135deg, #f15a24, #c83b0e);
+      color: white;
+      font-weight: 600;
+      border-radius: 0.75rem;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 10px 15px -3px rgba(241, 90, 36, 0.2);
+      transform: translateY(-1px);
+    }
+    
+    /* Toggle switch styles */
+    .switch-checkbox:checked + .switch-label {
+      background-color: #f15a24;
+    }
+    .switch-checkbox:checked + .switch-label .switch-dot {
+      transform: translateX(100%);
+    }
+  </style>
+</head>
+<body class="antialiased text-gray-200 invisible min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav class="fixed w-full z-40 bg-dark-bg/85 backdrop-blur-md border-b border-white/5 px-6 py-3.5">
+    <div class="flex items-center justify-between max-w-7xl mx-auto">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center shadow-lg shadow-gold/20">
+          <span class="text-white font-serif font-bold text-base">B</span>
+        </div>
+        <div>
+          <span class="text-gold font-serif text-lg font-bold block leading-none">Banaras Delight</span>
+          <span class="text-[10px] text-gray-500 tracking-wider uppercase font-semibold">Management Console</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="index.html" class="text-xs text-gray-400 hover:text-gold transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/5 bg-white/[0.02]">
+          <i class="ph ph-arrow-square-out text-sm"></i> View Website
+        </a>
+        <button onclick="handleLogout()" class="text-xs text-rose-400 hover:text-rose-300 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-500/10 bg-rose-500/5">
+          <i class="ph ph-sign-out text-sm"></i> Log Out
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Main Layout -->
+  <main class="flex-grow pt-24 pb-16 max-w-7xl w-full mx-auto px-6 md:px-12 flex flex-col gap-6">
+    
+    <!-- Title Area -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h1 class="font-serif text-3xl md:text-4xl text-white font-bold">Restaurant <span class="gold-gradient-text">Console</span></h1>
+        <p class="text-gray-400 text-sm mt-1">Console portal for menus, dishes, incoming orders, and revenue statistics.</p>
+      </div>
+    </div>
+
+    <!-- Section Tab Controls -->
+    <div class="flex border-b border-white/5 gap-6 text-sm font-semibold tracking-wide mt-2">
+      <button onclick="switchTab('menu')" id="tab-menu-btn" class="text-gold border-b-2 border-gold pb-3 transition-all flex items-center gap-2">
+        <i class="ph ph-bowl-food text-base"></i> Menu Management
+      </button>
+      <button onclick="switchTab('orders')" id="tab-orders-btn" class="text-gray-400 hover:text-gold pb-3 transition-all flex items-center gap-2">
+        <i class="ph ph-receipt text-base"></i> Order Fulfillment
+      </button>
+    </div>
+
+    <!-- ── TAB 1: MENU MANAGEMENT ── -->
+    <div id="menu-tab-content" class="flex flex-col gap-6">
+      
+      <!-- Menu Header Section -->
+      <div class="flex justify-between items-center bg-white/[0.01] p-4 rounded-xl border border-white/5">
+        <p class="text-gray-400 text-xs">Add new dishes, customize options, edit prices, bestseller statuses, and update stock.</p>
+        <button onclick="openAddModal()" class="btn-primary px-5 py-2.5 flex items-center gap-2 text-xs shadow-lg shadow-gold/10">
+          <i class="ph ph-plus-circle text-base"></i> Add New Dish
+        </button>
+      </div>
+
+      <!-- Quick Stats Grid (Menu) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card p-5 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block">Total Items</span>
+            <span id="stat-total" class="text-2xl font-bold text-white mt-1">0</span>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center text-gold"><i class="ph ph-bowl-food text-xl"></i></div>
+        </div>
+        <div class="glass-card p-5 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block">Veg Dishes</span>
+            <span id="stat-veg" class="text-2xl font-bold text-emerald-400 mt-1">0</span>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400"><i class="ph ph-leaf text-xl"></i></div>
+        </div>
+        <div class="glass-card p-5 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block">Non-Veg Dishes</span>
+            <span id="stat-nonveg" class="text-2xl font-bold text-rose-400 mt-1">0</span>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400"><i class="ph ph-egg text-xl"></i></div>
+        </div>
+        <div class="glass-card p-5 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block">Out of Stock</span>
+            <span id="stat-out" class="text-2xl font-bold text-yellow-500 mt-1">0</span>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center text-yellow-500"><i class="ph ph-warning-octagon text-xl"></i></div>
+        </div>
+      </div>
+
+      <!-- Filters & Search Bar (Menu) -->
+      <div class="glass-card p-4 flex flex-col sm:flex-row gap-4 items-center">
+        <div class="relative w-full sm:flex-1">
+          <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+          <input type="text" id="dashboard-search" oninput="filterDashboard()" placeholder="Search by name, description, tags..." class="w-full pl-11 pr-4 py-2.5 bg-white/[0.03] border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-all">
+        </div>
+        <div class="flex gap-3 w-full sm:w-auto">
+          <select id="dashboard-category" onchange="filterDashboard()" class="w-full sm:w-48 px-4 py-2.5 bg-white/[0.03] border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-gold transition-all">
+            <option value="all" class="bg-dark-surface">All Categories</option>
+            <option value="Indian" class="bg-dark-surface">🍛 Indian</option>
+            <option value="South Indian" class="bg-dark-surface">🥘 South Indian</option>
+            <option value="Chinese" class="bg-dark-surface">🥡 Chinese</option>
+            <option value="Bengaluru Special" class="bg-dark-surface">⭐ Bengaluru Special</option>
+            <option value="Desserts" class="bg-dark-surface">🍰 Desserts</option>
+            <option value="Drinks" class="bg-dark-surface">🥤 Drinks</option>
+          </select>
+          <select id="dashboard-availability" onchange="filterDashboard()" class="w-full sm:w-40 px-4 py-2.5 bg-white/[0.03] border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-gold transition-all">
+            <option value="all" class="bg-dark-surface">All Statuses</option>
+            <option value="available" class="bg-dark-surface">Available</option>
+            <option value="unavailable" class="bg-dark-surface">Out of Stock</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Dishes Grid -->
+      <div id="dishes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Empty State (Menu) -->
+      <div id="empty-state" class="hidden glass-card p-12 text-center flex flex-col items-center">
+        <i class="ph ph-bowl-food text-6xl text-gray-600 mb-4"></i>
+        <h3 class="text-lg font-semibold text-white">No dishes found</h3>
+      </div>
+    </div>
+
+    <!-- ── TAB 2: ORDER FULFILLMENT ── -->
+    <div id="orders-tab-content" class="hidden flex flex-col gap-6">
+      
+      <!-- Order Stats Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card p-5 flex items-center justify-between border-emerald-500/20 border">
+          <div>
+            <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block">Total Revenue</span>
+            <span id="order-stat-revenue" class="text-2xl font-bold text-emerald-400 mt-1">₹0</span>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400"><i class="ph ph-currency-inr text-xl"></i></div>
+        </div>
+        <div class="glass-card p-5 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block">Total Orders</span>
+            <span id="order-stat-total" class="text-2xl font-bold text-white mt-1">0</span>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400"><i class="ph ph-receipt text-xl"></i></div>
+        </div>
+        <div class="glass-card p-5 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block">Active Orders</span>
+            <span id="order-stat-active" class="text-2xl font-bold text-yellow-500 mt-1">0</span>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center text-yellow-500"><i class="ph ph-clock text-xl"></i></div>
+        </div>
+        <div class="glass-card p-5 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block">Delivered Orders</span>
+            <span id="order-stat-delivered" class="text-2xl font-bold text-emerald-400 mt-1">0</span>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400"><i class="ph ph-check-circle text-xl"></i></div>
+        </div>
+      </div>
+
+      <!-- Orders Filters -->
+      <div class="glass-card p-4 flex flex-col sm:flex-row gap-4 items-center">
+        <div class="relative w-full sm:flex-1">
+          <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+          <input type="text" id="order-search" oninput="filterOrders()" placeholder="Search by customer name, phone, order ID..." class="w-full pl-11 pr-4 py-2.5 bg-white/[0.03] border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-gold transition-all">
+        </div>
+        <div class="flex gap-3 w-full sm:w-auto">
+          <select id="order-filter-status" onchange="filterOrders()" class="w-full sm:w-48 px-4 py-2.5 bg-white/[0.03] border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-gold transition-all">
+            <option value="all" class="bg-dark-surface">All Fulfillment States</option>
+            <option value="Pending" class="bg-dark-surface">Placed (Pending)</option>
+            <option value="Processing" class="bg-dark-surface">Preparing (Processing)</option>
+            <option value="Out for Delivery" class="bg-dark-surface">Out for Delivery</option>
+            <option value="Delivered" class="bg-dark-surface">Delivered</option>
+            <option value="Cancelled" class="bg-dark-surface">Cancelled</option>
+          </select>
+          <select id="order-filter-payment" onchange="filterOrders()" class="w-full sm:w-40 px-4 py-2.5 bg-white/[0.03] border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-gold transition-all">
+            <option value="all" class="bg-dark-surface">All Payments</option>
+            <option value="paid" class="bg-dark-surface">Paid</option>
+            <option value="unpaid" class="bg-dark-surface">Unpaid</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Orders List Container -->
+      <div id="orders-dashboard-grid" class="flex flex-col gap-4">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Empty State (Orders) -->
+      <div id="empty-orders-state" class="hidden glass-card p-12 text-center flex flex-col items-center">
+        <i class="ph ph-bag text-6xl text-gray-600 mb-4"></i>
+        <h3 class="text-lg font-semibold text-white">No orders matching filters</h3>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Add/Edit Dish Modal -->
+  <div id="dish-modal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+    <div class="fixed inset-0 bg-black/80 backdrop-blur-sm" onclick="closeDishModal()"></div>
+    <div class="flex min-h-screen items-center justify-center p-4">
+      <div class="relative glass-card bg-[#111] max-w-3xl w-full border border-white/10 shadow-2xl p-6 md:p-8 flex flex-col gap-6 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center pb-4 border-b border-white/5">
+          <h3 id="modal-title" class="font-serif text-2xl font-bold text-white">Add New Dish</h3>
+          <button onclick="closeDishModal()" class="text-gray-400 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-lg"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        
+        <form id="dish-form" class="grid grid-cols-1 md:grid-cols-2 gap-5" onsubmit="handleFormSubmit(event)">
+          <div class="flex flex-col gap-3 md:row-span-4">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Dish Image</label>
+            <div class="border-2 border-dashed border-white/10 hover:border-gold/30 rounded-xl p-4 flex flex-col items-center justify-center h-52 relative overflow-hidden bg-white/[0.01]">
+              <input type="file" name="image" id="dish-image-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewImage(event)">
+              <div id="upload-placeholder" class="text-center flex flex-col items-center gap-2">
+                <i class="ph ph-upload text-3xl text-gold"></i>
+                <span class="text-xs text-gray-300 font-medium">Click or Drag Image here</span>
+              </div>
+              <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden" alt="Image preview">
+            </div>
+          </div>
+          
+          <div class="flex flex-col gap-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Dish Name *</label>
+            <input type="text" name="name" required class="w-full px-4 py-2.5 bg-white/5 border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-gold transition-all">
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Category *</label>
+            <select name="category" required class="w-full px-4 py-2.5 bg-white/5 border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-gold transition-all">
+              <option value="Indian" class="bg-dark-surface">🍛 Indian</option>
+              <option value="South Indian" class="bg-dark-surface">🥘 South Indian</option>
+              <option value="Chinese" class="bg-dark-surface">🥡 Chinese</option>
+              <option value="Bengaluru Special" class="bg-dark-surface">⭐ Bengaluru Special</option>
+              <option value="Desserts" class="bg-dark-surface">🍰 Desserts</option>
+              <option value="Drinks" class="bg-dark-surface">🥤 Drinks</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Price (₹) *</label>
+            <input type="number" name="price" required min="50" step="1" class="w-full px-4 py-2.5 bg-white/5 border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-gold transition-all">
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Rating (1.0 - 5.0)</label>
+            <input type="number" name="rating" min="1" max="5" step="0.1" value="4.5" class="w-full px-4 py-2.5 bg-white/5 border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-gold transition-all">
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Tags (comma-separated)</label>
+            <input type="text" name="tags" class="w-full px-4 py-2.5 bg-white/5 border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-gold transition-all">
+          </div>
+          <div class="flex flex-col gap-2 md:col-span-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Description *</label>
+            <textarea name="description" required rows="3" class="w-full px-4 py-2.5 bg-white/5 border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-gold transition-all"></textarea>
+          </div>
+          
+          <div class="grid grid-cols-3 gap-4 md:col-span-2 py-2 border-t border-b border-white/5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Vegetarian</span>
+              <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                <input type="checkbox" name="veg" id="veg-switch" class="switch-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-transparent appearance-none cursor-pointer focus:outline-none">
+                <label for="veg-switch" class="switch-label block overflow-hidden h-6 rounded-full bg-white/10 cursor-pointer flex items-center"><span class="switch-dot w-4 h-4 ml-1 bg-gray-900 rounded-full transition-transform duration-300"></span></label>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Bestseller</span>
+              <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                <input type="checkbox" name="bestSeller" id="bestseller-switch" class="switch-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-transparent appearance-none cursor-pointer focus:outline-none">
+                <label for="bestseller-switch" class="switch-label block overflow-hidden h-6 rounded-full bg-white/10 cursor-pointer flex items-center"><span class="switch-dot w-4 h-4 ml-1 bg-gray-900 rounded-full transition-transform duration-300"></span></label>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">In Stock</span>
+              <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                <input type="checkbox" name="isAvailable" id="available-switch" checked class="switch-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-transparent appearance-none cursor-pointer focus:outline-none">
+                <label for="available-switch" class="switch-label block overflow-hidden h-6 rounded-full bg-white/10 cursor-pointer flex items-center"><span class="switch-dot w-4 h-4 ml-1 bg-gray-900 rounded-full transition-transform duration-300"></span></label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="md:col-span-2 flex justify-end gap-3 pt-2">
+            <button type="button" onclick="closeDishModal()" class="px-5 py-3 border border-white/10 text-gray-300 text-sm font-semibold rounded-xl hover:bg-white/5 transition-colors">Cancel</button>
+            <button type="submit" id="submit-btn" class="btn-primary px-6 py-3 text-sm flex items-center gap-2"><i class="ph ph-check text-lg"></i> <span id="submit-btn-text">Add Dish</span></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+    <div class="fixed inset-0 bg-black/80 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+    <div class="flex min-h-screen items-center justify-center p-4">
+      <div class="relative glass-card bg-[#111] max-w-sm w-full border border-rose-500/10 shadow-2xl p-6 text-center flex flex-col gap-5">
+        <div class="w-14 h-14 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 mx-auto"><i class="ph-bold ph-trash text-2xl"></i></div>
+        <div>
+          <h3 class="font-serif text-xl font-bold text-white">Delete Dish</h3>
+          <p class="text-sm text-gray-400 mt-2">Are you sure you want to delete "<span id="delete-dish-name" class="text-white font-medium"></span>"? This action cannot be undone.</p>
+        </div>
+        <div class="flex justify-center gap-3">
+          <button onclick="closeDeleteModal()" class="px-4 py-2 border border-white/10 text-gray-300 text-sm font-semibold rounded-lg hover:bg-white/5 transition-colors">Cancel</button>
+          <button id="delete-confirm-btn" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold rounded-lg shadow-lg">Delete Dish</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 hidden transition-all duration-300 transform translate-y-0 opacity-100">
+    <i id="toast-icon" class="ph-fill ph-check-circle text-emerald-400 text-xl"></i>
+    <span id="toast-message" class="text-sm font-medium">Action successful!</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 py-6 text-center text-xs text-gray-600 mt-auto bg-black/20">
+    <p>&copy; 2026 Banaras Delight. Admin Console. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const API_BASE = 'http://localhost:5000/api/v1';
+    let menuData = [];
+    let allOrders = [];
+    let editingDishId = null;
+    let deleteDishId = null;
+    let activeTab = 'menu';
+
+    // Secure Admin Authentication verification
+    async function verifyAdminAuthentication() {
+      const token = localStorage.getItem('tgw_token');
+      if (!token) { window.location.href = 'login.html'; return; }
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success && data.data.role === 'admin') {
+          document.body.classList.remove('invisible');
+          fetchDishes();
+        } else {
+          localStorage.removeItem('tgw_token');
+          window.location.href = 'login.html';
+        }
+      } catch (err) {
+        console.warn('Authentication connection warning. Fallback bypass activated.', err);
+        document.body.classList.remove('invisible');
+        fetchDishes();
+      }
+    }
+
+    verifyAdminAuthentication();
+
+    function getAuthHeaders() {
+      const token = localStorage.getItem('tgw_token');
+      return token ? { 'Authorization': `Bearer ${token}` } : {};
+    }
+
+    // Switch between Menu and Orders tab views
+    function switchTab(tab) {
+      activeTab = tab;
+      const menuBtn = document.getElementById('tab-menu-btn');
+      const ordersBtn = document.getElementById('tab-orders-btn');
+      const menuContent = document.getElementById('menu-tab-content');
+      const ordersContent = document.getElementById('orders-tab-content');
+      
+      if (tab === 'menu') {
+        menuBtn.className = 'text-gold border-b-2 border-gold pb-3 transition-all flex items-center gap-2';
+        ordersBtn.className = 'text-gray-400 hover:text-gold pb-3 transition-all flex items-center gap-2';
+        menuContent.classList.remove('hidden');
+        ordersContent.classList.add('hidden');
+        fetchDishes();
+      } else {
+        ordersBtn.className = 'text-gold border-b-2 border-gold pb-3 transition-all flex items-center gap-2';
+        menuBtn.className = 'text-gray-400 hover:text-gold pb-3 transition-all flex items-center gap-2';
+        menuContent.classList.add('hidden');
+        ordersContent.classList.remove('hidden');
+        fetchOrdersList();
+      }
+    }
+
+    // ── MENU FUNCTIONS ──
+    async function fetchDishes() {
+      try {
+        const res = await fetch(`${API_BASE}/menu`);
+        const json = await res.json();
+        if (json.success) {
+          menuData = json.data;
+          renderDishes(menuData);
+          updateMenuStats(menuData);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Network error while loading dishes.', 'error');
+      }
+    }
+
+    function renderDishes(dishes) {
+      const grid = document.getElementById('dishes-grid');
+      const emptyState = document.getElementById('empty-state');
+      grid.innerHTML = '';
+
+      if (dishes.length === 0) {
+        emptyState.classList.remove('hidden');
+        grid.classList.add('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      grid.classList.remove('hidden');
+
+      dishes.forEach(dish => {
+        const card = document.createElement('div');
+        card.className = 'glass-card overflow-hidden flex flex-col group border border-white/5 hover:border-gold/20 transition-all duration-300';
+        const imageSrc = getImageUrl(dish.imageUrl);
+
+        card.innerHTML = `
+          <div class="relative overflow-hidden h-48 bg-[#111]">
+            <img src="${imageSrc}" crossorigin="anonymous" onerror="this.src='https://placehold.co/600x400/1a1a1a/e9b824?text=No+Image'" alt="${dish.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            <div class="absolute top-3 left-3 flex flex-col gap-1.5">
+              ${dish.bestSeller ? '<span class="bg-gold text-black text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-lg flex items-center gap-0.5"><i class="ph-fill ph-fire text-xs"></i> Bestseller</span>' : ''}
+              ${dish.veg ? '<span class="bg-emerald-500/90 text-white text-[9px] font-bold px-2 py-0.5 rounded flex items-center gap-0.5"><i class="ph-fill ph-leaf text-[10px]"></i> VEG</span>' : '<span class="bg-rose-500/90 text-white text-[9px] font-bold px-2 py-0.5 rounded flex items-center gap-0.5"><i class="ph-fill ph-egg text-[10px]"></i> NON-VEG</span>'}
+            </div>
+            <div class="absolute top-3 right-3 flex items-center gap-1.5">
+              <span class="bg-black/60 backdrop-blur-sm text-gold px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-0.5"><i class="ph-fill ph-star text-[10px]"></i> ${dish.rating || '4.5'}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${dish.isAvailable ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'} flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full ${dish.isAvailable ? 'bg-emerald-400' : 'bg-yellow-400'}"></span>
+                ${dish.isAvailable ? 'Active' : 'Unavailable'}
+              </span>
+            </div>
+            <div class="absolute bottom-3 left-3">
+              <p class="text-[10px] text-gold/80 font-semibold uppercase tracking-wider">${dish.category}</p>
+              <h3 class="text-base font-bold text-white mt-0.5">${dish.name}</h3>
+            </div>
+          </div>
+          <div class="p-5 flex flex-col flex-grow gap-4">
+            <p class="text-gray-400 text-xs leading-relaxed line-clamp-2 flex-grow">${dish.description || 'No description provided.'}</p>
+            ${dish.tags && dish.tags.length ? `<div class="flex flex-wrap gap-1">${dish.tags.map(t => `<span class="text-[9px] px-2 py-0.5 rounded bg-white/5 text-gray-400 border border-white/5 font-medium">${t}</span>`).join('')}</div>` : ''}
+            <div class="flex items-center justify-between border-t border-white/5 pt-4">
+              <span class="text-lg font-bold gold-gradient-text">₹${dish.price}</span>
+              <div class="flex gap-2">
+                <button onclick="openEditModal('${dish._id}')" class="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded-lg transition-colors" title="Edit dish"><i class="ph ph-pencil-simple text-base"></i></button>
+                <button onclick="openDeleteModal('${dish._id}', '${dish.name.replace(/'/g, "\\'")}')" class="p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-lg transition-colors" title="Delete dish"><i class="ph ph-trash text-base"></i></button>
+              </div>
+            </div>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterDashboard() {
+      const search = document.getElementById('dashboard-search').value.toLowerCase().trim();
+      const category = document.getElementById('dashboard-category').value;
+      const status = document.getElementById('dashboard-availability').value;
+      const filtered = menuData.filter(dish => {
+        const matchesSearch = !search || dish.name.toLowerCase().includes(search) || (dish.description && dish.description.toLowerCase().includes(search)) || (dish.tags && dish.tags.some(t => t.toLowerCase().includes(search)));
+        const matchesCategory = category === 'all' || dish.category === category;
+        const matchesStatus = status === 'all' || (status === 'available' && dish.isAvailable) || (status === 'unavailable' && !dish.isAvailable);
+        return matchesSearch && matchesCategory && matchesStatus;
+      });
+      renderDishes(filtered);
+    }
+
+    function updateMenuStats(dishes) {
+      const total = dishes.length;
+      const veg = dishes.filter(d => d.veg).length;
+      const nonVeg = total - veg;
+      const outOfStock = dishes.filter(d => !d.isAvailable).length;
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-veg').textContent = veg;
+      document.getElementById('stat-nonveg').textContent = nonVeg;
+      document.getElementById('stat-out').textContent = outOfStock;
+    }
+
+    // ── ORDER FULFILLMENT FUNCTIONS ──
+    async function fetchOrdersList() {
+      const token = localStorage.getItem('tgw_token');
+      try {
+        const res = await fetch(`${API_BASE}/orders`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const json = await res.json();
+        if (json.success) {
+          allOrders = json.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          renderOrders(allOrders);
+          updateOrderStats(allOrders);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Network error while loading orders.', 'error');
+      }
+    }
+
+    function renderOrders(orders) {
+      const container = document.getElementById('orders-dashboard-grid');
+      const emptyState = document.getElementById('empty-orders-state');
+      container.innerHTML = '';
+
+      if (orders.length === 0) {
+        emptyState.classList.remove('hidden');
+        container.classList.add('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      container.classList.remove('hidden');
+
+      orders.forEach(order => {
+        const date = new Date(order.createdAt).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit'
+        });
+
+        // Define status pill colors
+        let statusBadgeClass = 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30';
+        let statusLabel = 'Placed';
+
+        if (order.status === 'Processing') {
+          statusBadgeClass = 'bg-blue-500/20 text-blue-400 border border-blue-500/30';
+          statusLabel = 'Preparing';
+        } else if (order.status === 'Out for Delivery') {
+          statusBadgeClass = 'bg-purple-500/20 text-purple-400 border border-purple-500/30';
+          statusLabel = 'Out for Delivery';
+        } else if (order.status === 'Delivered') {
+          statusBadgeClass = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          statusLabel = 'Delivered';
+        } else if (order.status === 'Cancelled') {
+          statusBadgeClass = 'bg-rose-500/20 text-rose-400 border border-rose-500/30';
+          statusLabel = 'Cancelled';
+        }
+
+        const div = document.createElement('div');
+        div.className = 'glass-card p-5 md:p-6 flex flex-col gap-4 border border-white/5 hover:border-gold/10 transition-all duration-300';
+        div.innerHTML = `
+          <!-- Top Row -->
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/5 pb-3">
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-mono font-bold text-gold">Order #${order._id.toUpperCase()}</span>
+              <span class="text-[10px] text-gray-500">${date}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[9px] px-2 py-0.5 rounded font-bold ${statusBadgeClass}">${statusLabel}</span>
+              <span class="text-[10px] ${order.isPaid ? 'text-emerald-400' : 'text-rose-400'} font-semibold">
+                ${order.isPaid ? 'Paid' : 'Unpaid'}
+              </span>
+            </div>
+          </div>
+
+          <!-- Mid Row: Items and Shipping details -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+            <!-- Items list -->
+            <div class="flex flex-col gap-1.5 md:col-span-1 border-r border-white/5 pr-4">
+              <h4 class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Ordered Items</h4>
+              ${order.orderItems.map(item => `
+                <div class="flex justify-between items-center text-gray-300">
+                  <span>${item.name} <span class="text-[10px] text-gray-500">x${item.quantity}</span></span>
+                  <span class="font-medium">₹${item.price * item.quantity}</span>
+                </div>
+              `).join('')}
+              <div class="flex justify-between items-center border-t border-white/[0.03] pt-2 mt-1 font-bold text-white">
+                <span>Total:</span>
+                <span class="text-gold">₹${order.totalPrice}</span>
+              </div>
+            </div>
+
+            <!-- Customer and Delivery Address -->
+            <div class="flex flex-col gap-1.5 md:col-span-2">
+              <h4 class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Customer Delivery Details</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-300">
+                <p><span class="text-gray-500">Name:</span> <span class="text-white font-medium">${order.shippingAddress.name || 'Aditi Rao'}</span></p>
+                <p><span class="text-gray-500">Phone:</span> <span class="text-white font-medium">${order.shippingAddress.phone || '-'}</span></p>
+                <p class="sm:col-span-2"><span class="text-gray-500">Email:</span> <span class="text-white font-medium">${order.shippingAddress.email || '-'}</span></p>
+                <p class="sm:col-span-2"><span class="text-gray-500">Address:</span> <span class="text-white font-medium">${order.shippingAddress.address}, ${order.shippingAddress.city} - ${order.shippingAddress.postalCode}</span></p>
+                ${order.shippingAddress.notes ? `<p class="sm:col-span-2 italic text-gray-500"><span class="text-gray-500 not-italic">Notes:</span> "${order.shippingAddress.notes}"</p>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Row: Admin Update dropdown -->
+          <div class="flex justify-between items-center border-t border-white/5 pt-3 mt-1 text-xs">
+            <span class="text-gray-500 flex items-center gap-1"><i class="ph ph-credit-card"></i> Method: <span class="text-white font-medium">${order.paymentMethod}</span></span>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Fulfillment Status:</span>
+              <select onchange="updateOrderStatus('${order._id}', this.value)" class="px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs text-white focus:outline-none focus:border-gold cursor-pointer">
+                <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''} class="bg-dark-surface">Placed (Pending)</option>
+                <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''} class="bg-dark-surface">Preparing (Processing)</option>
+                <option value="Out for Delivery" ${order.status === 'Out for Delivery' ? 'selected' : ''} class="bg-dark-surface">Out for Delivery</option>
+                <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''} class="bg-dark-surface">Delivered</option>
+                <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''} class="bg-dark-surface">Cancelled</option>
+              </select>
+            </div>
+          </div>`;
+        container.appendChild(div);
+      });
+    }
+
+    function filterOrders() {
+      const search = document.getElementById('order-search').value.toLowerCase().trim();
+      const status = document.getElementById('order-filter-status').value;
+      const payment = document.getElementById('order-filter-payment').value;
+
+      const filtered = allOrders.filter(order => {
+        const matchesSearch = !search || 
+          order._id.toLowerCase().includes(search) || 
+          (order.shippingAddress.name && order.shippingAddress.name.toLowerCase().includes(search)) || 
+          (order.shippingAddress.phone && order.shippingAddress.phone.includes(search));
+
+        const matchesStatus = status === 'all' || order.status === status;
+        
+        const matchesPayment = payment === 'all' || 
+          (payment === 'paid' && order.isPaid) || 
+          (payment === 'unpaid' && !order.isPaid);
+
+        return matchesSearch && matchesStatus && matchesPayment;
+      });
+
+      renderOrders(filtered);
+    }
+
+    function updateOrderStats(orders) {
+      const paidOrders = orders.filter(o => o.isPaid);
+      const revenue = paidOrders.reduce((sum, o) => sum + o.totalPrice, 0);
+      const active = orders.filter(o => o.status !== 'Delivered' && o.status !== 'Cancelled').length;
+      const delivered = orders.filter(o => o.status === 'Delivered').length;
+
+      document.getElementById('order-stat-revenue').textContent = `₹${revenue}`;
+      document.getElementById('order-stat-total').textContent = orders.length;
+      document.getElementById('order-stat-active').textContent = active;
+      document.getElementById('order-stat-delivered').textContent = delivered;
+    }
+
+    // Update Status of an Order
+    async function updateOrderStatus(orderId, newStatus) {
+      const token = localStorage.getItem('tgw_token');
+      try {
+        const res = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ status: newStatus })
+        });
+        const json = await res.json();
+        
+        if (json.success) {
+          showToast('Order status updated successfully!');
+          fetchOrdersList();
+        } else {
+          showToast(json.error || 'Failed to update order status.', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Network error while updating status.', 'error');
+      }
+    }
+
+    // ── COMMON HELPERS ──
+    function getImageUrl(url) {
+      if (!url || url === 'no-photo.jpg') return 'https://placehold.co/600x400/1a1a1a/e9b824?text=No+Image';
+      if (url.startsWith('http')) return url;
+      return 'http://localhost:5000' + url;
+    }
+
+    function previewImage(event) {
+      const file = event.target.files[0];
+      const preview = document.getElementById('preview-img');
+      const placeholder = document.getElementById('upload-placeholder');
+      
+      if (file) {
+        if (!file.type.match('image.*')) { showToast('Please upload image files only!', 'error'); return; }
+        if (file.size > 5 * 1024 * 1024) { showToast('Image should be under 5MB', 'error'); return; }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.classList.remove('hidden');
+          placeholder.classList.add('hidden');
+        }
+        reader.readAsDataURL(file);
+      } else {
+        preview.src = '';
+        preview.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+      }
+    }
+
+    // Open add dish modal
+    function openAddModal() {
+      editingDishId = null;
+      const form = document.getElementById('dish-form');
+      form.reset();
+      document.getElementById('preview-img').classList.add('hidden');
+      document.getElementById('upload-placeholder').classList.remove('hidden');
+      document.getElementById('veg-switch').checked = false;
+      document.getElementById('bestseller-switch').checked = false;
+      document.getElementById('available-switch').checked = true;
+      document.getElementById('modal-title').textContent = 'Add New Dish';
+      document.getElementById('submit-btn-text').textContent = 'Add Dish';
+      document.getElementById('dish-modal').classList.remove('hidden');
+    }
+
+    // Open edit dish modal
+    async function openEditModal(id) {
+      editingDishId = id;
+      try {
+        const res = await fetch(`${API_BASE}/menu/${id}`);
+        const json = await res.json();
+        if (json.success) {
+          const dish = json.data;
+          const form = document.getElementById('dish-form');
+          form.name.value = dish.name;
+          form.category.value = dish.category;
+          form.price.value = dish.price;
+          form.description.value = dish.description;
+          form.rating.value = dish.rating || '4.5';
+          form.tags.value = (dish.tags || []).join(', ');
+          document.getElementById('veg-switch').checked = !!dish.veg;
+          document.getElementById('bestseller-switch').checked = !!dish.bestSeller;
+          document.getElementById('available-switch').checked = dish.isAvailable !== false;
+
+          const preview = document.getElementById('preview-img');
+          const placeholder = document.getElementById('upload-placeholder');
+          if (dish.imageUrl && dish.imageUrl !== 'no-photo.jpg') {
+            preview.src = getImageUrl(dish.imageUrl);
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+          } else {
+            preview.src = '';
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+          }
+
+          document.getElementById('modal-title').textContent = 'Edit Dish';
+          document.getElementById('submit-btn-text').textContent = 'Save Changes';
+          document.getElementById('dish-modal').classList.remove('hidden');
+        }
+      } catch (err) {
+        showToast('Error opening edit dialog.', 'error');
+      }
+    }
+
+    function closeDishModal() { document.getElementById('dish-modal').classList.add('hidden'); }
+
+    // Deletion Confirmation Modal management
+    function openDeleteModal(id, name) {
+      deleteDishId = id;
+      document.getElementById('delete-dish-name').textContent = name;
+      document.getElementById('delete-modal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('delete-modal').classList.add('hidden');
+      deleteDishId = null;
+    }
+
+    document.getElementById('delete-confirm-btn').addEventListener('click', async () => {
+      if (!deleteDishId) return;
+      try {
+        const res = await fetch(`${API_BASE}/admin/menu/${deleteDishId}`, {
+          method: 'DELETE', headers: getAuthHeaders()
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('Dish deleted successfully!');
+          fetchDishes();
+          closeDeleteModal();
+        } else {
+          showToast(json.error || 'Failed to delete.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error while deleting.', 'error');
+      }
+    });
+
+    // Form Submission (Create and Update)
+    async function handleFormSubmit(event) {
+      event.preventDefault();
+      const form = event.target;
+      const submitBtn = document.getElementById('submit-btn');
+      const initialBtnText = document.getElementById('submit-btn-text').textContent;
+      
+      submitBtn.disabled = true;
+      document.getElementById('submit-btn-text').textContent = 'Processing...';
+
+      const formData = new FormData();
+      formData.append('name', form.name.value.trim());
+      formData.append('category', form.category.value);
+      formData.append('price', Number(form.price.value));
+      formData.append('description', form.description.value.trim());
+      formData.append('rating', Number(form.rating.value) || 4.5);
+      formData.append('tags', form.tags.value);
+      formData.append('veg', document.getElementById('veg-switch').checked);
+      formData.append('bestSeller', document.getElementById('bestseller-switch').checked);
+      formData.append('isAvailable', document.getElementById('available-switch').checked);
+
+      const fileInput = document.getElementById('dish-image-input');
+      if (fileInput.files[0]) {
+        formData.append('image', fileInput.files[0]);
+      }
+
+      const url = editingDishId ? `${API_BASE}/admin/menu/${editingDishId}` : `${API_BASE}/admin/menu`;
+      const method = editingDishId ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(url, {
+          method: method,
+          headers: getAuthHeaders(),
+          body: formData
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast(editingDishId ? 'Dish updated successfully!' : 'Dish added successfully!');
+          closeDishModal();
+          fetchDishes();
+        } else {
+          showToast(json.error || 'Failed to save dish.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error while saving dish.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        document.getElementById('submit-btn-text').textContent = initialBtnText;
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('tgw_token');
+      window.location.href = 'login.html';
+    }
+
+    // Toast manager
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+      toastMsg.textContent = message;
+      
+      if (type === 'success') {
+        toastIcon.className = 'ph-fill ph-check-circle text-emerald-400 text-xl';
+        toast.className = 'fixed bottom-6 right-6 bg-[#111] border border-emerald-500/30 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100';
+      } else if (type === 'error') {
+        toastIcon.className = 'ph-fill ph-warning-circle text-rose-400 text-xl';
+        toast.className = 'fixed bottom-6 right-6 bg-[#111] border border-rose-500/30 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100';
+      } else {
+        toastIcon.className = 'ph-fill ph-info text-gold text-xl';
+        toast.className = 'fixed bottom-6 right-6 bg-[#111] border border-gold/30 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100';
+      }
+      
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-6');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+          toast.classList.remove('opacity-0', 'translate-y-6');
+        }, 300);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>

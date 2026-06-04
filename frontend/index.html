@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Banaras Delight — A premium dining experience inspired by the sacred heritage of Varanasi. Savor royal North Indian flavors and Ganga Aarti ambiance. Order online or reserve your table.">
+  <title>Banaras Delight | Traditional Indian Luxury Dining</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gold: { light: '#ffd275', DEFAULT: '#f15a24', dark: '#c83b0e' },
+            dark: { bg: '#0d0603', surface: '#160a05', lighter: '#241008', card: '#1b0c06', border: '#33180e' }
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'] }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer components {
+      .btn-primary { @apply px-7 py-3.5 bg-gradient-to-r from-gold to-gold-dark text-white font-semibold rounded-xl shadow-lg hover:shadow-gold/25 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0; }
+      .btn-outline { @apply px-7 py-3.5 border-2 border-gold/80 text-gold font-semibold rounded-xl hover:bg-gold hover:text-white transition-all duration-300; }
+      .glass-card { @apply bg-white/[0.03] backdrop-blur-2xl border border-white/[0.06] shadow-2xl rounded-2xl; }
+      .heading-serif { @apply font-serif font-bold; }
+    }
+  </style>
+  <style>
+    * { scrollbar-width: thin; scrollbar-color: #f15a24 #0d0603; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0d0603; }
+    ::-webkit-scrollbar-thumb { background: #f15a24; border-radius: 3px; }
+    ::selection { background: #f15a24; color: white; }
+    body { font-family: 'Inter', sans-serif; background-color: #0d0603; background-image: radial-gradient(ellipse at 50% 0%, rgba(241,90,36,0.12) 0%, rgba(91,6,18,0.06) 40%, transparent 80%); background-attachment: fixed; }
+    .font-serif, h1, h2, h3 { font-family: 'Playfair Display', serif; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes pulse-gold { 0%, 100% { box-shadow: 0 0 0 0 rgba(241,90,36,0.4); } 70% { box-shadow: 0 0 0 15px rgba(241,90,36,0); } }
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .gold-gradient-text { background: linear-gradient(135deg, #ffd275, #f15a24, #c83b0e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-bg { background: radial-gradient(ellipse at 50% 0%, rgba(241,90,36,0.12) 0%, transparent 60%); }
+    .section-divider { background: linear-gradient(90deg, transparent, rgba(241,90,36,0.3), transparent); height: 1px; }
+  </style>
+  <!-- GSAP & ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body class="antialiased text-gray-200">
+
+  <!-- Loader -->
+  <div id="loader" class="fixed inset-0 z-[60] flex items-center justify-center bg-[#0d0603] transition-opacity duration-700">
+    <div class="text-center">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center mx-auto mb-4" style="animation: pulse-gold 2s infinite;">
+        <span class="text-white font-serif font-bold text-2xl">B</span>
+      </div>
+      <div class="text-gold font-serif text-2xl tracking-wider">Banaras Delight</div>
+      <div class="mt-4 w-32 h-0.5 bg-white/10 rounded-full mx-auto overflow-hidden">
+        <div class="h-full bg-gold rounded-full" style="animation: loading 1.5s ease-in-out infinite; width: 30%;"></div>
+      </div>
+    </div>
+    <style>@keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }</style>
+  </div>
+
+  <!-- Navbar -->
+  <nav id="navbar" class="fixed w-full z-40 transition-all duration-500 py-3 px-6 md:px-12 bg-dark-bg/60 backdrop-blur-xl border-b border-white/5">
+    <div class="flex items-center justify-between max-w-7xl mx-auto">
+      <a href="index.html" class="flex items-center gap-2.5" id="nav-logo">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center shadow-lg shadow-gold/20">
+          <span class="text-white font-serif font-bold text-lg">B</span>
+        </div>
+        <span class="text-gold font-serif text-xl font-bold hidden sm:block">Banaras Delight</span>
+      </a>
+      <!-- Desktop Menu -->
+      <div class="hidden lg:flex items-center space-x-8 text-gray-300 font-medium text-sm tracking-wide">
+        <a href="index.html" class="text-gold transition-colors duration-300 relative group">Home<span class="absolute -bottom-1 left-0 w-full h-0.5 bg-gold"></span></a>
+        <a href="about.html" class="hover:text-gold transition-colors duration-300 relative group">About<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+        <a href="menu.html" class="hover:text-gold transition-colors duration-300 relative group">Menu<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+        <a href="contact.html" class="hover:text-gold transition-colors duration-300 relative group">Contact<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+      </div>
+      <div class="hidden lg:flex items-center space-x-3">
+        <a href="cart.html" class="p-2.5 text-gray-300 hover:text-gold transition-colors relative">
+          <i class="ph ph-shopping-cart text-xl"></i>
+          <span id="cart-count" class="absolute -top-0.5 -right-0.5 bg-gold text-white text-[10px] font-bold w-[18px] h-[18px] flex items-center justify-center rounded-full">0</span>
+        </a>
+        <a href="reservation.html" class="btn-primary py-2.5 px-5 text-sm">Book Table</a>
+      </div>
+      <!-- Mobile Menu Button -->
+      <button id="mobile-menu-btn" class="lg:hidden text-gray-200 p-2">
+        <i class="ph ph-list text-2xl"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu Overlay -->
+  <div id="mobile-menu" class="fixed inset-0 z-50 bg-[#0d0603]/[0.98] backdrop-blur-2xl transform translate-x-full transition-transform duration-500 ease-in-out">
+    <div class="flex flex-col h-full pt-6 px-6">
+      <div class="flex justify-between items-center mb-12">
+        <span class="text-gold font-serif text-xl font-bold">Banaras Delight</span>
+        <button id="mobile-menu-close" class="text-gray-200 p-2">
+          <i class="ph ph-x text-2xl"></i>
+        </button>
+      </div>
+      <div class="flex flex-col space-y-1">
+        <a href="index.html" class="text-gold text-lg font-medium py-4 border-b border-white/5 flex items-center justify-between">Home <i class="ph ph-arrow-right text-sm"></i></a>
+        <a href="about.html" class="hover:text-gold text-lg font-medium py-4 border-b border-white/5 flex items-center justify-between transition-colors">About <i class="ph ph-arrow-right text-sm opacity-0"></i></a>
+        <a href="menu.html" class="hover:text-gold text-lg font-medium py-4 border-b border-white/5 flex items-center justify-between transition-colors">Menu <i class="ph ph-arrow-right text-sm opacity-0"></i></a>
+        <a href="contact.html" class="hover:text-gold text-lg font-medium py-4 border-b border-white/5 flex items-center justify-between transition-colors">Contact <i class="ph ph-arrow-right text-sm opacity-0"></i></a>
+      </div>
+      <div class="mt-auto pb-8 space-y-4">
+        <a href="cart.html" class="flex items-center gap-3 text-gray-300 hover:text-gold transition-colors py-3">
+          <i class="ph ph-shopping-cart text-xl"></i> View Cart
+        </a>
+        <a href="reservation.html" class="btn-primary text-center block">Book a Table</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Hero Section ═══ -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <!-- Background -->
+    <div class="absolute inset-0 z-0">
+      <img src="./banaras_background.png" alt="Banaras Ghats" class="w-full h-full object-cover" loading="eager">
+      <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-[#0d0603]"></div>
+    </div>
+    <!-- Decorative glow -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gold/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gold text-sm font-medium mb-8 backdrop-blur-sm" data-animate="fade-up">
+        <i class="ph-fill ph-star-four text-gold-light"></i>
+        Traditional Varanasi Luxury Restaurant
+      </div>
+      <h1 class="heading-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6 leading-[1.1] opacity-0 translate-y-8" id="hero-title">
+        Experience<br><span class="gold-gradient-text">Heritage & Flavor</span>
+      </h1>
+      <p class="text-lg md:text-xl text-gray-300/90 mb-10 font-light max-w-2xl mx-auto leading-relaxed opacity-0 translate-y-8" id="hero-subtitle">
+        Authentic Varanasi flavours, royal North Indian delicacies, and a warm spiritual ambiance inspired by the sacred Ganga Ghats.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0 translate-y-8" id="hero-cta">
+        <a href="menu.html" class="btn-primary w-full sm:w-auto flex items-center justify-center gap-2">
+          <i class="ph ph-fork-knife text-lg"></i> Explore Menu
+        </a>
+        <a href="reservation.html" class="btn-outline w-full sm:w-auto flex items-center justify-center gap-2">
+          <i class="ph ph-calendar-blank text-lg"></i> Reserve Table
+        </a>
+      </div>
+      <!-- Scroll indicator -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+        <div class="w-6 h-10 rounded-full border-2 border-white/20 flex justify-center pt-2">
+          <div class="w-1 h-2.5 bg-gold rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Highlights ═══ -->
+  <section class="py-20 md:py-28 relative hero-bg">
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+        <div class="glass-card p-8 text-center group hover:border-gold/20 transition-all duration-500" data-animate="fade-up">
+          <div class="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center mx-auto mb-5 group-hover:bg-gold/20 transition-colors">
+            <i class="ph ph-leaf text-3xl text-gold"></i>
+          </div>
+          <h3 class="text-xl font-serif text-white mb-3">Fresh Ingredients</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">Locally sourced, premium quality ingredients handpicked daily to ensure maximum freshness and flavor.</p>
+        </div>
+        
+        <div class="glass-card p-8 text-center group hover:border-gold/20 transition-all duration-500" data-animate="fade-up" data-delay="0.3">
+          <div class="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center mx-auto mb-5 group-hover:bg-gold/20 transition-colors">
+            <i class="ph ph-clock-countdown text-3xl text-gold"></i>
+          </div>
+          <h3 class="text-xl font-serif text-white mb-3">Fast Delivery</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">Experience premium dining from the comfort of your home — delivered hot and fresh within 30 minutes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider max-w-5xl mx-auto"></div>
+
+  <!-- ═══ Featured Dishes ═══ -->
+  <section class="py-20 md:py-28">
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="text-center mb-14" data-animate="fade-up">
+        <span class="text-gold text-sm font-semibold uppercase tracking-[0.2em]">Our Specialties</span>
+        <h2 class="heading-serif text-3xl md:text-5xl text-white mt-3">Signature Dishes</h2>
+        <p class="text-gray-400 mt-4 max-w-xl mx-auto">Handpicked favorites loved by thousands — each dish a masterpiece of flavor and presentation.</p>
+      </div>
+      <div id="featured-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Populated via JS -->
+      </div>
+      <div class="text-center mt-12" data-animate="fade-up">
+        <a href="menu.html" class="btn-outline inline-flex items-center gap-2">View Full Menu <i class="ph ph-arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider max-w-5xl mx-auto"></div>
+
+  <!-- ═══ About Snippet ═══ -->
+  <section class="py-20 md:py-28">
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div class="relative" data-animate="fade-right">
+          <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop" alt="Restaurant Ambiance" class="rounded-2xl shadow-2xl w-full object-cover h-[400px] lg:h-[500px]" loading="lazy">
+          <div class="absolute -bottom-4 -right-4 w-32 h-32 rounded-2xl bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center shadow-2xl shadow-gold/20">
+            <div class="text-center text-white">
+              <span class="text-3xl font-bold font-serif">15+</span>
+              <p class="text-xs mt-1 opacity-90">Years of<br>Excellence</p>
+            </div>
+          </div>
+        </div>
+        <div data-animate="fade-left">
+          <span class="text-gold text-sm font-semibold uppercase tracking-[0.2em]">Our Story</span>
+          <h2 class="heading-serif text-3xl md:text-4xl text-white mt-3 mb-6">A Legacy of Flavors<br>Since 2010</h2>
+          <p class="text-gray-400 leading-relaxed mb-6">
+            Founded with a passion for traditional culinary heritage, Banaras Delight brings the authentic spirit, sacred culture, and signature recipes of Varanasi to your plate. Our chefs bring decades of royal Indian culinary experience, transforming the finest ingredients into extraordinary dining experiences.
+          </p>
+          <p class="text-gray-400 leading-relaxed mb-8">
+            From aromatic Indian curries to delicate Chinese stir-fries, every dish is a celebration of flavor, tradition, and innovation. We don't just serve food — we create memories.
+          </p>
+          <a href="about.html" class="inline-flex items-center gap-2 text-gold font-semibold hover:gap-3 transition-all duration-300">
+            Read Our Story <i class="ph ph-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider max-w-5xl mx-auto"></div>
+
+  <!-- ═══ Stats Counter ═══ -->
+  <section class="py-20 md:py-24">
+    <div class="max-w-5xl mx-auto px-6 md:px-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8" data-animate="fade-up">
+        <div class="text-center">
+          <div class="text-4xl md:text-5xl font-bold font-serif gold-gradient-text" data-counter="15" data-suffix="+">0</div>
+          <p class="text-gray-400 text-sm mt-2">Years Experience</p>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl md:text-5xl font-bold font-serif gold-gradient-text" data-counter="200" data-suffix="+">0</div>
+          <p class="text-gray-400 text-sm mt-2">Menu Items</p>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl md:text-5xl font-bold font-serif gold-gradient-text" data-counter="50000" data-suffix="+">0</div>
+          <p class="text-gray-400 text-sm mt-2">Happy Customers</p>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl md:text-5xl font-bold font-serif text-gold">4.8★</div>
+          <p class="text-gray-400 text-sm mt-2">Average Rating</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider max-w-5xl mx-auto"></div>
+
+  <!-- ═══ Testimonials ═══ -->
+  <section class="py-20 md:py-28">
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="text-center mb-14" data-animate="fade-up">
+        <span class="text-gold text-sm font-semibold uppercase tracking-[0.2em]">Testimonials</span>
+        <h2 class="heading-serif text-3xl md:text-5xl text-white mt-3">What Our Guests Say</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="glass-card p-8 relative" data-animate="fade-up">
+          <i class="ph-fill ph-quotes text-3xl text-gold/20 absolute top-6 right-6"></i>
+          <div class="flex items-center gap-1 text-gold text-sm mb-4">
+            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+          </div>
+          <p class="text-gray-300 text-sm leading-relaxed mb-6">"Absolutely stunning experience! The Hyderabadi Biryani was the best I've had outside of Hyderabad. The ambience and service were world-class. Will definitely be back."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 flex items-center justify-center text-gold font-bold text-sm">A</div>
+            <div>
+              <p class="text-white text-sm font-semibold">Ananya Sharma</p>
+              <p class="text-gray-500 text-xs">Food Blogger</p>
+            </div>
+          </div>
+        </div>
+        <div class="glass-card p-8 relative" data-animate="fade-up" data-delay="0.15">
+          <i class="ph-fill ph-quotes text-3xl text-gold/20 absolute top-6 right-6"></i>
+          <div class="flex items-center gap-1 text-gold text-sm mb-4">
+            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+          </div>
+          <p class="text-gray-300 text-sm leading-relaxed mb-6">"Banaras Delight never disappoints. From the Butter Chicken to the Tiramisu, every dish is a masterpiece. The online ordering is super smooth and delivery is always on time."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 flex items-center justify-center text-gold font-bold text-sm">R</div>
+            <div>
+              <p class="text-white text-sm font-semibold">Rahul Menon</p>
+              <p class="text-gray-500 text-xs">Regular Customer</p>
+            </div>
+          </div>
+        </div>
+        <div class="glass-card p-8 relative" data-animate="fade-up" data-delay="0.3">
+          <i class="ph-fill ph-quotes text-3xl text-gold/20 absolute top-6 right-6"></i>
+          <div class="flex items-center gap-1 text-gold text-sm mb-4">
+            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star-half"></i>
+          </div>
+          <p class="text-gray-300 text-sm leading-relaxed mb-6">"We hosted our anniversary dinner here and it was magical. The reservation process was seamless, and the chef even prepared a custom course for us. Truly special."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 flex items-center justify-center text-gold font-bold text-sm">P</div>
+            <div>
+              <p class="text-white text-sm font-semibold">Priya & David</p>
+              <p class="text-gray-500 text-xs">Anniversary Dinner</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Reservation CTA Banner ═══ -->
+  <section class="py-20 md:py-28 relative overflow-hidden">
+    <div class="absolute inset-0">
+      <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1920&auto=format&fit=crop" alt="Restaurant Dining" class="w-full h-full object-cover" loading="lazy">
+      <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/70 to-black/85"></div>
+    </div>
+    <div class="relative z-10 text-center max-w-3xl mx-auto px-6" data-animate="fade-up">
+      <span class="text-gold text-sm font-semibold uppercase tracking-[0.2em]">Reserve Your Spot</span>
+      <h2 class="heading-serif text-3xl md:text-5xl text-white mt-4 mb-6">Ready for an<br>Unforgettable Evening?</h2>
+      <p class="text-gray-300 mb-10 text-lg font-light">Book your table today and let us create a dining experience you'll remember forever.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="reservation.html" class="btn-primary inline-flex items-center justify-center gap-2">
+          <i class="ph ph-calendar-check text-lg"></i> Reserve Now
+        </a>
+        <a href="tel:+918045678900" class="btn-outline inline-flex items-center justify-center gap-2">
+          <i class="ph ph-phone text-lg"></i> Call Us
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Footer ═══ -->
+  <footer class="border-t border-white/5 pt-16 pb-8 text-gray-400">
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div>
+          <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center">
+              <span class="text-white font-serif font-bold text-sm">B</span>
+            </div>
+            <span class="text-gold font-serif text-lg font-bold">Banaras Delight</span>
+          </div>
+          <p class="text-sm leading-relaxed mb-5">Premium dining experience inspired by the sacred heritage of Varanasi.</p>
+          <div class="flex space-x-2.5">
+            <a href="#" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-gold hover:border-gold transition-all duration-300"><i class="ph ph-instagram-logo text-sm"></i></a>
+            <a href="#" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-gold hover:border-gold transition-all duration-300"><i class="ph ph-facebook-logo text-sm"></i></a>
+            <a href="#" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-gold hover:border-gold transition-all duration-300"><i class="ph ph-twitter-logo text-sm"></i></a>
+            <a href="#" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-gold hover:border-gold transition-all duration-300"><i class="ph ph-youtube-logo text-sm"></i></a>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-white text-sm font-semibold uppercase tracking-wider mb-5">Quick Links</h3>
+          <ul class="space-y-3 text-sm">
+            <li><a href="menu.html" class="hover:text-gold transition-colors duration-300 flex items-center gap-2"><i class="ph ph-caret-right text-gold text-xs"></i> Our Menu</a></li>
+            <li><a href="about.html" class="hover:text-gold transition-colors duration-300 flex items-center gap-2"><i class="ph ph-caret-right text-gold text-xs"></i> About Us</a></li>
+            <li><a href="reservation.html" class="hover:text-gold transition-colors duration-300 flex items-center gap-2"><i class="ph ph-caret-right text-gold text-xs"></i> Reservations</a></li>
+            <li><a href="contact.html" class="hover:text-gold transition-colors duration-300 flex items-center gap-2"><i class="ph ph-caret-right text-gold text-xs"></i> Contact Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-white text-sm font-semibold uppercase tracking-wider mb-5">Opening Hours</h3>
+          <ul class="space-y-3 text-sm">
+            <li class="flex justify-between"><span>Monday - Friday</span><span class="text-gold">11am - 10pm</span></li>
+            <li class="flex justify-between"><span>Saturday</span><span class="text-gold">10am - 11pm</span></li>
+            <li class="flex justify-between"><span>Sunday</span><span class="text-gold">10am - 11pm</span></li>
+          </ul>
+          <div class="mt-5 flex items-center gap-2 text-gold text-sm">
+            <i class="ph-fill ph-map-pin text-base"></i>
+            <span>Godowlia, Varanasi</span>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-white text-sm font-semibold uppercase tracking-wider mb-5">Newsletter</h3>
+          <p class="text-sm mb-4">Subscribe for exclusive offers and culinary updates.</p>
+          <form class="flex" onsubmit="event.preventDefault(); this.querySelector('input').value=''; alert('Subscribed successfully!');">
+            <input type="email" placeholder="Your email" class="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-gold rounded-l-lg" required>
+            <button type="submit" class="bg-gold hover:bg-gold-dark text-white px-4 py-2.5 rounded-r-lg transition-colors"><i class="ph ph-paper-plane-tilt"></i></button>
+          </form>
+        </div>
+      </div>
+      <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+        <p>&copy; 2026 Banaras Delight. All rights reserved.</p>
+        <div class="flex gap-6">
+          <a href="#" class="hover:text-gold transition-colors">Privacy Policy</a>
+          <a href="#" class="hover:text-gold transition-colors">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./js/main.js"></script>
+  <script>
+    // Fetch featured (best seller) dishes for homepage
+    async function loadFeatured() {
+      const grid = document.getElementById('featured-grid');
+      try {
+        const res = await fetch('http://localhost:5000/api/v1/menu');
+        const json = await res.json();
+        if (json.success) {
+          const bestSellers = json.data.filter(i => i.bestSeller).slice(0, 4);
+          if (bestSellers.length === 0) return;
+          grid.innerHTML = bestSellers.map((item, idx) => {
+            const imgUrl = item.imageUrl && item.imageUrl.startsWith('http') ? item.imageUrl : `http://localhost:5000${item.imageUrl}`;
+            return `
+              <div class="glass-card overflow-hidden group hover:border-gold/20 transition-all duration-500" data-animate="fade-up" data-delay="${idx * 0.1}">
+                <div class="relative overflow-hidden h-52">
+                  <img src="${imgUrl}" alt="${item.name}" loading="lazy" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" onerror="this.src='https://placehold.co/600x400/1a1a1a/e9b824?text=Image'">
+                  ${item.bestSeller ? '<div class="absolute top-3 left-3 bg-gold text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">Best Seller</div>' : ''}
+                  <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-gold px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                    <i class="ph-fill ph-star text-[10px]"></i> ${item.rating}
+                  </div>
+                </div>
+                <div class="p-5">
+                  <div class="flex justify-between items-start mb-1">
+                    <h3 class="text-base font-semibold text-white group-hover:text-gold transition-colors">${item.name}</h3>
+                    <span class="text-gold font-bold text-sm ml-2">₹${item.price}</span>
+                  </div>
+                  <p class="text-gray-500 text-xs">${item.category}</p>
+                </div>
+              </div>`;
+          }).join('');
+        }
+      } catch (e) {
+        grid.innerHTML = `
+          <div class="glass-card overflow-hidden group"><div class="h-52 bg-dark-lighter"></div><div class="p-5"><div class="h-4 bg-dark-lighter rounded w-3/4 mb-2"></div><div class="h-3 bg-dark-lighter rounded w-1/2"></div></div></div>
+          <div class="glass-card overflow-hidden group"><div class="h-52 bg-dark-lighter"></div><div class="p-5"><div class="h-4 bg-dark-lighter rounded w-3/4 mb-2"></div><div class="h-3 bg-dark-lighter rounded w-1/2"></div></div></div>
+          <div class="glass-card overflow-hidden group hidden sm:block"><div class="h-52 bg-dark-lighter"></div><div class="p-5"><div class="h-4 bg-dark-lighter rounded w-3/4 mb-2"></div><div class="h-3 bg-dark-lighter rounded w-1/2"></div></div></div>
+          <div class="glass-card overflow-hidden group hidden lg:block"><div class="h-52 bg-dark-lighter"></div><div class="p-5"><div class="h-4 bg-dark-lighter rounded w-3/4 mb-2"></div><div class="h-3 bg-dark-lighter rounded w-1/2"></div></div></div>`;
+      }
+    }
+    loadFeatured();
+  </script>
+</body>
+</html>

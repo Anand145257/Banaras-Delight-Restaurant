@@ -1,0 +1,17 @@
+{
+  "name": "resturant-site",
+  "version": "1.0.0",
+  "description": "Banaras Delight restaurant site",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "seed:menu": "node backend/seed/menuSeed.js",
+    "serve:frontend": "npx serve frontend -l 3000"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
